@@ -1,32 +1,28 @@
-import asyncio
 import datetime
-import json
-import logging
-import os
 import pathlib
-import sys
-from enum import Enum
-from os.path import join
-from tkinter import LAST
-
-import aiohttp
-import feedparser
-import pytz
+import json
+import os
 import yaml
+from os.path import join
+from discord import Webhook, Embed, Color
+import aiohttp, asyncio
+from keep_alive import keep_alive
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Color, Embed, Webhook
+import logging, sys
+import pytz
+import feedparser
 
 utc = pytz.UTC
 
 BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
-PUBLISH_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/record.json")
+PUBLISH_JSON_PATH = join(
+    pathlib.Path(__file__).parent.absolute(), "output/record.json")
 TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=7)
-
+LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 
 KEYWORDS_CONFIG_PATH = join(
-    pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
-)
+    pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
+
 ALL_VALID = False
 DESCRIPTION_KEYWORDS_I = []
 DESCRIPTION_KEYWORDS = []
@@ -41,6 +37,7 @@ handler = logging.FileHandler(filename='cybersec_stories.log',
 handler.setFormatter(
     logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
+
 
 def load_keywords():
     ''' Load keywords from config file '''
@@ -63,7 +60,9 @@ def load_keywords():
         logger.error(e)
         sys.exit(1)
 
+
 ################## LOAD CONFIGURATIONS ####################
+
 
 def load_lasttimes():
     ''' Load lasttimes from json file '''
@@ -88,37 +87,40 @@ def update_lasttimes():
     ''' Save lasttimes in json file '''
 
     with open(PUBLISH_JSON_PATH, 'w') as json_file:
-        json.dump(
-            {
-                "LAST_PUBLISHED": LAST_PUBLISHED.strftime(TIME_FORMAT),
-            }, json_file)
+        json.dump({
+            "LAST_PUBLISHED": LAST_PUBLISHED.strftime(TIME_FORMAT),
+        }, json_file)
+
 
 ################## SEARCH STORIES FROM BLEEPING COMPUTER ####################
 
+
 def get_stories(link):
     newsfeed = feedparser.parse(link)
-    print(newsfeed)
     return newsfeed
+
 
 def get_new_stories():
 
     global LAST_PUBLISHED
 
     stories = get_stories(BLEEPING_COM_UR)
-    filtered_stories, new_published_time = filter_stories(stories["entries"], LAST_PUBLISHED)
+    filtered_stories, new_published_time = filter_stories(
+        stories["entries"], LAST_PUBLISHED)
 
     LAST_PUBLISHED = new_published_time
 
     return filtered_stories
 
 
-def filter_stories(stories, last_published:datetime.datetime):
+def filter_stories(stories, last_published: datetime.datetime):
 
     filtered_stories = []
     new_last_time = last_published
 
     for story in stories:
-        story_time = datetime.datetime.strptime(story["published"], TIME_FORMAT)
+        story_time = datetime.datetime.strptime(story["published"],
+                                                TIME_FORMAT)
         if story_time > last_published:
             if ALL_VALID or is_summ_keyword_present(story["summary"]):
 
@@ -129,32 +131,36 @@ def filter_stories(stories, last_published:datetime.datetime):
 
     return filtered_stories, new_last_time
 
+
 def is_summ_keyword_present(summary: str):
     ''' Given the summary check if any keyword is present '''
 
     return any(w in summary for w in DESCRIPTION_KEYWORDS) or \
             any(w.lower() in summary.lower() for w in DESCRIPTION_KEYWORDS_I) #for each of the word in description keyword config, check if it exists in summary.
 
+
 #################### SEND MESSAGES #########################
 
-def generate_new_story_message(new_stories) -> Embed:
+
+def generate_new_story_message(new_story) -> Embed:
     ''' Generate new CVE message for sending to slack '''
 
     nl = '\n'
     embed = Embed(
-        title=f"🔈 *{new_stories['title']}*",
-        description=new_stories["summary"] if len(new_stories["summary"]) < 500 else
-        new_stories["summary"][:500] + "...",
+        title=f"🔈 *{new_story['title']}*",
+        description=new_story["summary"] if len(new_story["summary"]) < 500
+        else new_story["summary"][:500] + "...",
         timestamp=datetime.datetime.utcnow(),
         color=Color.blue())
     embed.add_field(name=f"📅  *Published*",
-                    value=f"{new_stories['Published']}",
+                    value=f"{new_story['published']}",
                     inline=True)
     embed.add_field(name=f"More Information",
-                    value=f"{new_stories['link']}",
+                    value=f"{new_story['link']}",
                     inline=False)
 
     return embed
+
 
 async def send_discord_message(message: Embed):
     ''' Send a message to the discord channel webhook '''
@@ -166,6 +172,7 @@ async def send_discord_message(message: Embed):
         return
 
     await sendtowebhook(webhookurl=discord_webhok_url, content=message)
+
 
 async def sendtowebhook(webhookurl: str, content: Embed):
     async with aiohttp.ClientSession() as session:
@@ -184,12 +191,14 @@ async def itscheckintime():
     print(f"New Stories: {new_title}")
 
     for story in new_stories:
-       story_msg = generate_new_story_message(story)
-       await send_discord_message(story_msg)
+        story_msg = generate_new_story_message(story)
+        await send_discord_message(story_msg)
 
     update_lasttimes()
 
+
 if __name__ == "__main__":
+    keep_alive()
     scheduler = AsyncIOScheduler()
     scheduler.add_job(itscheckintime, 'interval', minutes=5)
     scheduler.start()
