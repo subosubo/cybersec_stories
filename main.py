@@ -142,7 +142,7 @@ def generate_new_story_message(new_stories) -> Embed:
 
     nl = '\n'
     embed = Embed(
-        title=f"🔈 *{new_stories['title']}* 🔈",
+        title=f"🔈 *{new_stories['title']}*",
         description=new_stories["summary"] if len(new_stories["summary"]) < 500 else
         new_stories["summary"][:500] + "...",
         timestamp=datetime.datetime.utcnow(),
@@ -150,8 +150,8 @@ def generate_new_story_message(new_stories) -> Embed:
     embed.add_field(name=f"📅  *Published*",
                     value=f"{new_stories['Published']}",
                     inline=True)
-    embed.add_field(name=f"More Information (_limit to 5_)",
-                    value=f"{nl.join(new_stories['link'][:5])}",
+    embed.add_field(name=f"More Information",
+                    value=f"{new_stories['link']}",
                     inline=False)
 
     return embed
