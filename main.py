@@ -1,3 +1,4 @@
+import requests
 import datetime
 import pathlib
 import json
@@ -15,6 +16,7 @@ import feedparser
 utc = pytz.UTC
 
 BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
+ALIENVAULT_UR = "https://otx.alienvault.com//api/v1/pulses/subscribed?"
 PUBLISH_JSON_PATH = join(
     pathlib.Path(__file__).parent.absolute(), "output/record.json")
 TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
@@ -111,6 +113,21 @@ def get_new_stories():
     LAST_PUBLISHED = new_published_time
 
     return filtered_stories
+
+
+def get_sub_pulse():
+
+    now = datetime.datetime.now() - datetime.timedelta(days=1)
+    now_str = now.strftime("%Y-%m-%d")
+
+    headers = {
+        "Content-Type": "application/json",
+        "X-OTX-API-KEY": os.getenv('ALIEN_VAULT_API')
+    }
+
+    r = requests.get(f"{ALIENVAULT_UR}limit=100&modified_since={now_str}", headers=headers)
+
+    return r.json()
 
 
 def filter_stories(stories, last_published: datetime.datetime):
