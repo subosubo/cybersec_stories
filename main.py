@@ -151,7 +151,7 @@ def generate_new_story_message(new_story) -> Embed:
         description=new_story["summary"] if len(new_story["summary"]) < 500
         else new_story["summary"][:500] + "...",
         timestamp=datetime.datetime.utcnow(),
-        color=Color.blue())
+        color=Color.light_gray())
     embed.add_field(name=f"📅  *Published*",
                     value=f"{new_story['published']}",
                     inline=True)
