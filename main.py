@@ -129,6 +129,12 @@ def get_sub_pulse():
 
     return r.json()
 
+#def get_new_pulse():
+
+
+#def filter_pulse():
+    
+
 
 def filter_stories(stories, last_published: datetime.datetime):
 
