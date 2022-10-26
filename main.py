@@ -1,25 +1,33 @@
-import requests
+import asyncio
 import datetime
-import pathlib
 import json
+import logging
 import os
-import yaml
+import pathlib
+import sys
 from os.path import join
-from discord import Webhook, Embed, Color
-import aiohttp, asyncio
-from keep_alive import keep_alive
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-import logging, sys
-import pytz
+
+import aiohttp
 import feedparser
+import OTXv2
+import pytz
+import requests
+import yaml
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from discord import Color, Embed, Webhook
+
+from keep_alive import keep_alive
 
 utc = pytz.UTC
 
 BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
-ALIENVAULT_UR = "https://otx.alienvault.com//api/v1/pulses/subscribed?"
-PUBLISH_JSON_PATH = join(
-    pathlib.Path(__file__).parent.absolute(), "output/record.json")
-TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
+ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
+
+PUBLISH_BC_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/record.json")
+PUBLISH_ALIEN_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/alien_record.json")
+
+BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
+ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
 LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 
 KEYWORDS_CONFIG_PATH = join(
@@ -72,10 +80,10 @@ def load_lasttimes():
     global LAST_PUBLISHED
 
     try:
-        with open(PUBLISH_JSON_PATH, 'r') as json_file:
+        with open(PUBLISH_BC_JSON_PATH, 'r') as json_file:
             published_time = json.load(json_file)
             LAST_PUBLISHED = datetime.datetime.strptime(
-                published_time["LAST_PUBLISHED"], TIME_FORMAT)
+                published_time["LAST_PUBLISHED"], BC_TIME_FORMAT)
 
     except Exception as e:  #If error, just keep the fault date (today - 1 day)
         print(f"ERROR, using default last times.\n{e}")
@@ -88,9 +96,9 @@ def load_lasttimes():
 def update_lasttimes():
     ''' Save lasttimes in json file '''
 
-    with open(PUBLISH_JSON_PATH, 'w') as json_file:
+    with open(PUBLISH_BC_JSON_PATH, 'w') as json_file:
         json.dump({
-            "LAST_PUBLISHED": LAST_PUBLISHED.strftime(TIME_FORMAT),
+            "LAST_PUBLISHED": LAST_PUBLISHED.strftime(BC_TIME_FORMAT),
         }, json_file)
 
 
@@ -129,12 +137,13 @@ def get_sub_pulse():
 
     return r.json()
 
-#def get_new_pulse():
+def get_new_pulse():
+
+    global
 
 
 #def filter_pulse():
     
-
 
 def filter_stories(stories, last_published: datetime.datetime):
 
@@ -143,7 +152,7 @@ def filter_stories(stories, last_published: datetime.datetime):
 
     for story in stories:
         story_time = datetime.datetime.strptime(story["published"],
-                                                TIME_FORMAT)
+                                                BC_TIME_FORMAT)
         if story_time > last_published:
             if ALL_VALID or is_summ_keyword_present(story["summary"]):
 
