@@ -21,14 +21,15 @@ from keep_alive import keep_alive
 utc = pytz.UTC
 
 BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
-ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
-
 PUBLISH_BC_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/record.json")
-PUBLISH_ALIEN_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/alien_record.json")
-
 BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
 LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+
+ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
+PUBLISH_ALIEN_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/alien_record.json")
+ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
+ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 
 KEYWORDS_CONFIG_PATH = join(
     pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
@@ -77,13 +78,17 @@ def load_keywords():
 def load_lasttimes():
     ''' Load lasttimes from json file '''
 
-    global LAST_PUBLISHED
+    global LAST_PUBLISHED, ALIEN_CREATED, ALIEN_MODIFIED
 
     try:
         with open(PUBLISH_BC_JSON_PATH, 'r') as json_file:
             published_time = json.load(json_file)
-            LAST_PUBLISHED = datetime.datetime.strptime(
-                published_time["LAST_PUBLISHED"], BC_TIME_FORMAT)
+            LAST_PUBLISHED = datetime.datetime.strptime(published_time["LAST_PUBLISHED"], BC_TIME_FORMAT)
+        
+        with open(PUBLISH_ALIEN_JSON_PATH, 'r') as json_file:
+            alien_time = json.load(json_file)
+            ALIEN_MODIFIED = datetime.datetime.strptime(alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
+            ALIEN_MODIFIED = datetime.datetime.strptime(alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
 
     except Exception as e:  #If error, just keep the fault date (today - 1 day)
         print(f"ERROR, using default last times.\n{e}")
