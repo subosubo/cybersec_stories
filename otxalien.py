@@ -138,7 +138,7 @@ class otxalien:
         return filtered_pulses
 
     def generate_new_pulse_message(self, new_story) -> Embed:
-        # Generate new CVE message for sending to slack"""
+        # Generate new CVE message for sending to slack
 
         embed = Embed(
             title=f"🔈 *{new_story['title']}*",
