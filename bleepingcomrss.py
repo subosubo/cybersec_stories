@@ -27,7 +27,7 @@ class bleepingcom:
     ################## LOAD CONFIGURATIONS ####################
 
     def load_lasttimes(self):
-        # Load lasttimes from json file"""
+        # Load lasttimes from json file
 
         try:
             with open(self.PUBLISH_BC_JSON_PATH, "r") as json_file:
@@ -39,10 +39,8 @@ class bleepingcom:
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
             print(f"ERROR: {e}")
 
-    # print(f"Last_Published: {LAST_PUBLISHED}")
-
     def update_lasttimes(self):
-        """Save lasttimes in json file"""
+        # Save lasttimes in json file
         try:
             with open(self.PUBLISH_BC_JSON_PATH, "w") as json_file:
                 json.dump(
@@ -63,10 +61,8 @@ class bleepingcom:
         return newsfeed
 
     def filter_stories(self, stories, last_published: datetime.datetime):
-
         filtered_stories = []
         new_last_time = last_published
-
         for story in stories:
             story_time = datetime.datetime.strptime(
                 story["published"], self.BC_TIME_FORMAT
@@ -82,26 +78,21 @@ class bleepingcom:
         return filtered_stories, new_last_time
 
     def is_summ_keyword_present(self, summary: str):
-        """Given the summary check if any keyword is present"""
-
+        # Given the summary check if any keyword is present
         return any(w in summary for w in self.keywords) or any(
             w.lower() in summary.lower() for w in self.keywords_i
         )  # for each of the word in description keyword config, check if it exists in summary.
 
     def get_new_stories(self):
-
         stories = self.get_stories(self.BLEEPING_COM_UR)
         filtered_stories, new_published_time = self.filter_stories(
             stories["entries"], self.LAST_PUBLISHED
         )
-
         self.LAST_PUBLISHED = new_published_time
-
         return filtered_stories
 
     def generate_new_story_message(self, new_story) -> Embed:
-        # Generate new CVE message for sending to slack"""
-
+        # Generate new CVE message for sending to slack
         embed = Embed(
             title=f"🔈 *{new_story['title']}*",
             description=new_story["summary"]
