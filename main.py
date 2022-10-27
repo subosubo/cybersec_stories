@@ -9,7 +9,6 @@ from os.path import join
 
 import aiohttp
 import feedparser
-import OTXv2
 import pytz
 import requests
 import yaml
@@ -21,12 +20,14 @@ from keep_alive import keep_alive
 utc = pytz.UTC
 
 BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
-PUBLISH_BC_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/record.json")
+PUBLISH_BC_JSON_PATH = join(
+    pathlib.Path(__file__).parent.absolute(), "output/record.json")
 BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
 LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 
 ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
-PUBLISH_ALIEN_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/alien_record.json")
+PUBLISH_ALIEN_JSON_PATH = join(
+    pathlib.Path(__file__).parent.absolute(), "output/alien_record.json")
 ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%6N"
 ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
@@ -83,12 +84,15 @@ def load_lasttimes():
     try:
         with open(PUBLISH_BC_JSON_PATH, 'r') as json_file:
             published_time = json.load(json_file)
-            LAST_PUBLISHED = datetime.datetime.strptime(published_time["LAST_PUBLISHED"], BC_TIME_FORMAT)
-        
+            LAST_PUBLISHED = datetime.datetime.strptime(
+                published_time["LAST_PUBLISHED"], BC_TIME_FORMAT)
+
         with open(PUBLISH_ALIEN_JSON_PATH, 'r') as json_file:
             alien_time = json.load(json_file)
-            ALIEN_MODIFIED = datetime.datetime.strptime(alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
-            ALIEN_MODIFIED = datetime.datetime.strptime(alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
+            ALIEN_MODIFIED = datetime.datetime.strptime(
+                alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
+            ALIEN_MODIFIED = datetime.datetime.strptime(
+                alien_time["MODIFIED"], ALIEN_TIME_FORMAT)
 
     except Exception as e:  #If error, just keep the fault date (today - 1 day)
         print(f"ERROR, using default last times.\n{e}")
@@ -138,17 +142,18 @@ def get_sub_pulse():
         "X-OTX-API-KEY": os.getenv('ALIEN_VAULT_API')
     }
 
-    r = requests.get(f"{ALIENVAULT_UR}limit=100&modified_since={now_str}", headers=headers)
+    r = requests.get(f"{ALIENVAULT_UR}limit=100&modified_since={now_str}",
+                     headers=headers)
 
     return r.json()
 
-def get_new_pulse():
 
-    global
+#def get_new_pulse():
 
+#    global
 
 #def filter_pulse():
-    
+
 
 def filter_stories(stories, last_published: datetime.datetime):
 
