@@ -1,14 +1,18 @@
 from threading import Thread
+
 from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/', methods = ['HEAD','GET'])
+
+@app.route("/", methods=["HEAD", "GET"])
 async def home():
-    return 'Stayin Alive'
+    return "Stayin Alive"
+
 
 def run():
-    app.run(host = "0.0.0.0", port=8081)
+    app.run(host="0.0.0.0", port=8081)
+
 
 def keep_alive():
     t = Thread(target=run)
