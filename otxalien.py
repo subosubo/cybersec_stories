@@ -28,7 +28,7 @@ class otxalien:
         self.PUBLISH_ALIEN_JSON_PATH = join(
             pathlib.Path(__file__).parent.absolute(), "output/alien_record.json"
         )
-        self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+        self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%L"
         self.ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
         self.ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
 
@@ -77,6 +77,7 @@ class otxalien:
 
         now = datetime.datetime.now() - datetime.timedelta(days=1)
         now_str = now.strftime("%Y-%m-%d")
+        limit = 100
 
         headers = {
             "Content-Type": "application/json",
@@ -84,7 +85,8 @@ class otxalien:
         }
 
         r = requests.get(
-            f"{self.ALIENVAULT_UR}limit=100&modified_since={now_str}", headers=headers
+            f"{self.ALIENVAULT_UR}limit={limit}&modified_since={now_str}",
+            headers=headers,
         )
 
         return r.json()
