@@ -140,7 +140,7 @@ class otxalien:
 
     def generate_new_pulse_message(self, new_story) -> Embed:
         # Generate new CVE message for sending to slack
-
+        nl = "\n"
         embed = Embed(
             title=f"🔈 *{new_story['name']}*",
             description=new_story["description"]
@@ -155,8 +155,8 @@ class otxalien:
         embed.add_field(name=f"📅  *Last Modified*",
                         value=f"{new_story['modified']}",
                         inline=True)
-        embed.add_field(name=f"More Information",
-                        value=f"{new_story['references']}",
+        embed.add_field(name=f"More Information (_limit to 5_)",
+                        value=f"{nl.join(new_story['references'][:5])}",
                         inline=False)
 
         return embed

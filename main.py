@@ -96,7 +96,7 @@ async def itscheckintime():
     new_stories = bc.get_new_stories()
 
     bc_title = [new_story["title"] for new_story in new_stories]
-    print(f"New Stories: {bc_title}")
+    print(f"Bleeping Computer Stories: {bc_title}")
 
     for story in new_stories:
         story_msg = bc.generate_new_story_message(story)
@@ -117,10 +117,10 @@ async def itscheckintime():
     mod_pulses = alien.get_modified_pulse()
 
     pulse_title = [new_pulse["name"] for new_pulse in new_pulses]
-    print(f"New Stories: {pulse_title}")
+    print(f"OTX Alien pulses: {pulse_title}")
 
     mod_pulse_title = [mod_pulse["name"] for mod_pulse in mod_pulses]
-    print(f"New Stories: {mod_pulse_title}")
+    print(f"OTX Alien mod pulses: {mod_pulse_title}")
 
     for pulse in new_pulses:
         pulse_msg = alien.generate_new_pulse_message(pulse)
