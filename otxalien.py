@@ -133,7 +133,7 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_MODIFIED, time_type.created)
+            stories["results"], self.ALIEN_MODIFIED, time_type.modified)
         self.ALIEN_MODIFIED = new_last_time
 
         return filtered_pulses
@@ -143,6 +143,29 @@ class otxalien:
         nl = "\n"
         embed = Embed(
             title=f"🔈 *{new_story['name']}*",
+            description=new_story["description"]
+            if len(new_story["description"]) < 500 else
+            new_story["description"][:500] + "...",
+            timestamp=datetime.datetime.utcnow(),
+            color=Color.light_gray(),
+        )
+        embed.add_field(name=f"📅  *Published*",
+                        value=f"{new_story['created']}",
+                        inline=True)
+        embed.add_field(name=f"📅  *Last Modified*",
+                        value=f"{new_story['modified']}",
+                        inline=True)
+        embed.add_field(name=f"More Information (_limit to 5_)",
+                        value=f"{nl.join(new_story['references'][:5])}",
+                        inline=False)
+
+        return embed
+
+    def generate_mod_pulse_message(self, new_story) -> Embed:
+        # Generate new CVE message for sending to slack
+        nl = "\n"
+        embed = Embed(
+            title=f"🔈 *Updated: {new_story['name']}*",
             description=new_story["description"]
             if len(new_story["description"]) < 500 else
             new_story["description"][:500] + "...",

@@ -126,7 +126,7 @@ async def itscheckintime():
         await send_discord_message(pulse_msg)
 
     for mod_pulse in mod_pulses:
-        mod_pulse_msg = alien.generate_new_pulse_message(mod_pulse)
+        mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
         await send_discord_message(mod_pulse_msg)
 
     alien.update_lasttimes()
