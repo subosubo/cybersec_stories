@@ -3,7 +3,6 @@ import logging
 import os
 import pathlib
 import sys
-from doctest import debug_script
 from os.path import join
 
 import aiohttp
