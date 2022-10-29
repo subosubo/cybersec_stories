@@ -136,7 +136,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     keep_alive()
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(itscheckintime, "interval", minutes=1)
+    scheduler.add_job(itscheckintime, "interval", minutes=5)
     scheduler.start()
     print("Press Ctrl+{0} to exit".format("Break" if os.name == "nt" else "C"))
 

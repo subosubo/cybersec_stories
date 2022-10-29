@@ -13,7 +13,7 @@ utc = pytz.UTC
 
 
 class time_type(Enum):
-    created = " created"
+    created = "created"
     modified = "modified"
 
 
@@ -99,6 +99,7 @@ class otxalien:
         new_last_time = last_create
 
         for story in stories:
+
             story_time = datetime.datetime.strptime(story[tt_filter.value],
                                                     self.ALIEN_TIME_FORMAT)
             if story_time > last_create:
@@ -122,7 +123,6 @@ class otxalien:
     def get_new_pulse(self):
 
         stories = self.get_sub_pulse()
-        print(f"{stories.keys()}")
         filtered_pulses, new_last_time = self.filter_pulse(
             stories["results"], self.ALIEN_CREATED, time_type.created)
         self.ALIEN_CREATED = new_last_time
@@ -142,17 +142,21 @@ class otxalien:
         # Generate new CVE message for sending to slack
 
         embed = Embed(
-            title=f"🔈 *{new_story['title']}*",
-            description=new_story["summary"] if len(new_story["summary"]) < 500
-            else new_story["summary"][:500] + "...",
+            title=f"🔈 *{new_story['name']}*",
+            description=new_story["description"]
+            if len(new_story["description"]) < 500 else
+            new_story["description"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
         embed.add_field(name=f"📅  *Published*",
-                        value=f"{new_story['published']}",
+                        value=f"{new_story['created']}",
+                        inline=True)
+        embed.add_field(name=f"📅  *Last Modified*",
+                        value=f"{new_story['modified']}",
                         inline=True)
         embed.add_field(name=f"More Information",
-                        value=f"{new_story['link']}",
+                        value=f"{new_story['references']}",
                         inline=False)
 
         return embed
