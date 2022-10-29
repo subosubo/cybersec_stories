@@ -17,20 +17,18 @@ from otxalien import otxalien
 
 logger = logging.getLogger("cybersecstories")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename="cybersec_stories.log", encoding="utf-8", mode="w"
-)
+handler = logging.FileHandler(filename="cybersec_stories.log",
+                              encoding="utf-8",
+                              mode="w")
 handler.setFormatter(
-    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
-)
+    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
 logger.addHandler(handler)
 
 
 def load_keywords():
     # Load keywords from config file
     KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
-    )
+        pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -138,7 +136,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     keep_alive()
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(itscheckintime, "interval", minutes=5)
+    scheduler.add_job(itscheckintime, "interval", minutes=1)
     scheduler.start()
     print("Press Ctrl+{0} to exit".format("Break" if os.name == "nt" else "C"))
 
