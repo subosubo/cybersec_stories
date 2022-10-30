@@ -133,7 +133,6 @@ async def itscheckintime():
 
 
 if __name__ == "__main__":
-    keep_alive()
     scheduler = AsyncIOScheduler()
     scheduler.add_job(itscheckintime, "interval", minutes=5)
     scheduler.start()
@@ -141,6 +140,7 @@ if __name__ == "__main__":
 
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
     try:
+        keep_alive()
         asyncio.get_event_loop().run_forever()
     except (KeyboardInterrupt, SystemExit) as e:
         logger.error(f"{e}")
