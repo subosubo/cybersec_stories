@@ -68,8 +68,11 @@ async def send_discord_message(message: Embed):
 
 async def sendtowebhook(webhookurl: str, content: Embed):
     async with aiohttp.ClientSession() as session:
-        webhook = Webhook.from_url(webhookurl, session=session)
-        await webhook.send(embed=content)
+        try:
+            webhook = Webhook.from_url(webhookurl, session=session)
+            await webhook.send(embed=content)
+        except discord.RateLimited(float(600)):
+            await webhook.send(embed=content)
 
 
 #################### MAIN BODY #########################
