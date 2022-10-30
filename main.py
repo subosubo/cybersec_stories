@@ -8,7 +8,7 @@ from os.path import join
 import aiohttp
 import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Embed, Webhook
+from discord import Embed, RateLimited, Webhook
 
 from bleepingcomrss import bleepingcom
 from keep_alive import keep_alive
@@ -71,7 +71,7 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        except discord.RateLimited(float(600)):
+        except RateLimited(float(600)):
             await webhook.send(embed=content)
 
 
