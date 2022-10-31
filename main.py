@@ -71,7 +71,7 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        except RateLimited(float(600)):
+        except RateLimited(600):
             await webhook.send(embed=content)
 
 
