@@ -133,7 +133,7 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_MODIFIED, time_type.modified)
+            stories["results"], self.ALIEN_MODIFIED, time_type.created)
         self.ALIEN_MODIFIED = new_last_time
 
         return filtered_pulses
