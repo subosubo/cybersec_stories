@@ -4,18 +4,19 @@ import os
 import pathlib
 import sys
 from os.path import join
-
 import aiohttp
 import yaml
+from enum import Enum
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Embed, RateLimited, Webhook
+from discord import Embed, RateLimited, Webhook, HTTPException
 
 from bleepingcomrss import bleepingcom
 from keep_alive import keep_alive
 from otxalien import otxalien
 
+
 logger = logging.getLogger("cybersecstories")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 handler = logging.FileHandler(filename="cybersec_stories.log",
                               encoding="utf-8",
                               mode="w")
@@ -71,9 +72,13 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        except RateLimited(5):
+        except HTTPException as e:
+            logger.error(f"{e}")
+            os.system("kill 1")
+        except RateLimited as e:
+            logger.error(f"{e}")
+            os.system("kill 1")
             #await webhook.send(embed=content)
-            os.system('kill 1')
 
 
 #################### MAIN BODY #########################
