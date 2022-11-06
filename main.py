@@ -3,7 +3,6 @@ import logging
 import os
 import pathlib
 import sys
-from enum import Enum
 from os.path import join
 
 import aiohttp
@@ -63,7 +62,7 @@ def load_keywords():
                 PRODUCT_KEYWORDS_I,
             )
     except Exception as e:
-        logger.error(e)
+        log.error(e)
         sys.exit(1)
 
 
@@ -88,10 +87,10 @@ async def sendtowebhook(webhookurl: str, content: Embed):
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
         except HTTPException as e:
-            logger.error(f"{e}")
+            log.error(f"{e}")
             os.system("kill 1")
         except RateLimited as e:
-            logger.error(f"{e}")
+            log.error(f"{e}")
             os.system("kill 1")
             # await webhook.send(embed=content)
 
@@ -167,5 +166,5 @@ if __name__ == "__main__":
         keep_alive()
         asyncio.get_event_loop().run_forever()
     except (KeyboardInterrupt, SystemExit) as e:
-        logger.error(f"{e}")
+        log.error(f"{e}")
         raise e

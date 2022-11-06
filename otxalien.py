@@ -52,7 +52,7 @@ class otxalien:
                 )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
-            logging.error(f"ERROR: {e}")
+            self.logger.error(f"ERROR: {e}")
 
     # print(f"Last_Published: {LAST_PUBLISHED}")
 
@@ -72,7 +72,7 @@ class otxalien:
                 )
 
         except Exception as e:
-            logging.error(f"ERROR: {e}")
+            self.logger.error(f"ERROR: {e}")
 
     ################## GET PULSES FROM OTX ALIEN  ####################
 
