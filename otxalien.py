@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import pathlib
 from enum import Enum
@@ -18,22 +19,21 @@ class time_type(Enum):
 
 
 class otxalien:
-
     def __init__(self, valid, keywords, keywords_i, product, product_i):
         self.valid = valid
         self.keywords = keywords
         self.keywords_i = keywords_i
         self.product = product
         self.product_i = product_i
+
         self.ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
         self.PUBLISH_ALIEN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(),
-            "output/alien_record.json")
+            pathlib.Path(__file__).parent.absolute(), "output/alien_record.json"
+        )
         self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
-        self.ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(
-            days=1)
-        self.ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(
-            days=1)
+        self.ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.logger = logging.getLogger("cybersecstories")
 
     ################## LOAD CONFIGURATIONS ####################
 
@@ -45,12 +45,14 @@ class otxalien:
             with open(self.PUBLISH_ALIEN_JSON_PATH, "r") as json_file:
                 alien_time = json.load(json_file)
                 self.ALIEN_MODIFIED = datetime.datetime.strptime(
-                    alien_time["MODIFIED"], self.ALIEN_TIME_FORMAT)
+                    alien_time["MODIFIED"], self.ALIEN_TIME_FORMAT
+                )
                 self.ALIEN_CREATED = datetime.datetime.strptime(
-                    alien_time["CREATED"], self.ALIEN_TIME_FORMAT)
+                    alien_time["CREATED"], self.ALIEN_TIME_FORMAT
+                )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
-            print(f"ERROR: {e}")
+            logging.error(f"ERROR: {e}")
 
     # print(f"Last_Published: {LAST_PUBLISHED}")
 
@@ -61,16 +63,16 @@ class otxalien:
             with open(self.PUBLISH_ALIEN_JSON_PATH, "w") as json_file:
                 json.dump(
                     {
-                        "MODIFIED":
-                        self.ALIEN_MODIFIED.strftime(self.ALIEN_TIME_FORMAT),
-                        "CREATED":
-                        self.ALIEN_CREATED.strftime(self.ALIEN_TIME_FORMAT),
+                        "MODIFIED": self.ALIEN_MODIFIED.strftime(
+                            self.ALIEN_TIME_FORMAT
+                        ),
+                        "CREATED": self.ALIEN_CREATED.strftime(self.ALIEN_TIME_FORMAT),
                     },
                     json_file,
                 )
 
         except Exception as e:
-            print(f"ERROR: {e}")
+            logging.error(f"ERROR: {e}")
 
     ################## GET PULSES FROM OTX ALIEN  ####################
 
@@ -92,19 +94,20 @@ class otxalien:
 
         return r.json()
 
-    def filter_pulse(self, stories, last_create: datetime.datetime,
-                     tt_filter: time_type):
+    def filter_pulse(
+        self, stories, last_create: datetime.datetime, tt_filter: time_type
+    ):
 
         filtered_stories = []
         new_last_time = last_create
 
         for story in stories:
 
-            story_time = datetime.datetime.strptime(story[tt_filter.value],
-                                                    self.ALIEN_TIME_FORMAT)
+            story_time = datetime.datetime.strptime(
+                story[tt_filter.value], self.ALIEN_TIME_FORMAT
+            )
             if story_time > last_create:
-                if self.valid or self.is_summ_keyword_present(
-                        story["description"]):
+                if self.valid or self.is_summ_keyword_present(story["description"]):
 
                     filtered_stories.append(story)
 
@@ -124,7 +127,8 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_CREATED, time_type.created)
+            stories["results"], self.ALIEN_CREATED, time_type.created
+        )
         self.ALIEN_CREATED = new_last_time
 
         return filtered_pulses
@@ -133,7 +137,8 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_MODIFIED, time_type.created)
+            stories["results"], self.ALIEN_MODIFIED, time_type.created
+        )
         self.ALIEN_MODIFIED = new_last_time
 
         return filtered_pulses
@@ -144,20 +149,22 @@ class otxalien:
         embed = Embed(
             title=f"🔈 *{new_story['name']}*",
             description=new_story["description"]
-            if len(new_story["description"]) < 500 else
-            new_story["description"][:500] + "...",
+            if len(new_story["description"]) < 500
+            else new_story["description"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
-        embed.add_field(name=f"📅  *Published*",
-                        value=f"{new_story['created']}",
-                        inline=True)
-        embed.add_field(name=f"📅  *Last Modified*",
-                        value=f"{new_story['modified']}",
-                        inline=True)
-        embed.add_field(name=f"More Information (_limit to 5_)",
-                        value=f"{nl.join(new_story['references'][:5])}",
-                        inline=False)
+        embed.add_field(
+            name=f"📅  *Published*", value=f"{new_story['created']}", inline=True
+        )
+        embed.add_field(
+            name=f"📅  *Last Modified*", value=f"{new_story['modified']}", inline=True
+        )
+        embed.add_field(
+            name=f"More Information (_limit to 5_)",
+            value=f"{nl.join(new_story['references'][:5])}",
+            inline=False,
+        )
 
         return embed
 
@@ -167,19 +174,21 @@ class otxalien:
         embed = Embed(
             title=f"🔈 *Updated: {new_story['name']}*",
             description=new_story["description"]
-            if len(new_story["description"]) < 500 else
-            new_story["description"][:500] + "...",
+            if len(new_story["description"]) < 500
+            else new_story["description"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
-        embed.add_field(name=f"📅  *Published*",
-                        value=f"{new_story['created']}",
-                        inline=True)
-        embed.add_field(name=f"📅  *Last Modified*",
-                        value=f"{new_story['modified']}",
-                        inline=True)
-        embed.add_field(name=f"More Information (_limit to 5_)",
-                        value=f"{nl.join(new_story['references'][:5])}",
-                        inline=False)
+        embed.add_field(
+            name=f"📅  *Published*", value=f"{new_story['created']}", inline=True
+        )
+        embed.add_field(
+            name=f"📅  *Last Modified*", value=f"{new_story['modified']}", inline=True
+        )
+        embed.add_field(
+            name=f"More Information (_limit to 5_)",
+            value=f"{nl.join(new_story['references'][:5])}",
+            inline=False,
+        )
 
         return embed

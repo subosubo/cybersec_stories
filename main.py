@@ -3,32 +3,47 @@ import logging
 import os
 import pathlib
 import sys
+from enum import Enum
 from os.path import join
+
 import aiohttp
 import yaml
-from enum import Enum
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Embed, RateLimited, Webhook, HTTPException
+from discord import Embed, HTTPException, RateLimited, Webhook
 
 from bleepingcomrss import bleepingcom
 from keep_alive import keep_alive
 from otxalien import otxalien
 
+#################### LOG CONFIG #########################
 
-logger = logging.getLogger("cybersecstories")
-logger.setLevel(logging.ERROR)
-handler = logging.FileHandler(filename="cybersec_stories.log",
-                              encoding="utf-8",
-                              mode="w")
-handler.setFormatter(
-    logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
-logger.addHandler(handler)
+log = logging.getLogger("cybersecstories")
+log.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter(
+    "%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
+)
+
+# Log to file
+filehandler = logging.FileHandler("cybersec_stories.log", "w", "utf-8")
+filehandler.setLevel(logging.DEBUG)
+filehandler.setFormatter(formatter)
+log.addHandler(filehandler)
+
+# Log to stdout too
+streamhandler = logging.StreamHandler()
+streamhandler.setLevel(logging.INFO)
+streamhandler.setFormatter(formatter)
+log.addHandler(streamhandler)
+
+#################### LOADING #########################
 
 
 def load_keywords():
     # Load keywords from config file
     KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
+        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
+    )
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -78,7 +93,7 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         except RateLimited as e:
             logger.error(f"{e}")
             os.system("kill 1")
-            #await webhook.send(embed=content)
+            # await webhook.send(embed=content)
 
 
 #################### MAIN BODY #########################

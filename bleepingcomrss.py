@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import pathlib
 from os.path import join
 
@@ -11,7 +12,6 @@ utc = pytz.UTC
 
 
 class bleepingcom:
-
     def __init__(self, valid, keywords, keywords_i, product, product_i):
         self.valid = valid
         self.keywords = keywords
@@ -21,10 +21,11 @@ class bleepingcom:
 
         self.BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
         self.PUBLISH_BC_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(), "output/record.json")
+            pathlib.Path(__file__).parent.absolute(), "output/record.json"
+        )
         self.BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(
-            days=1)
+        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.logger = logging.getLogger("cybersecstories")
 
     ################## LOAD CONFIGURATIONS ####################
 
@@ -35,10 +36,11 @@ class bleepingcom:
             with open(self.PUBLISH_BC_JSON_PATH, "r") as json_file:
                 published_time = json.load(json_file)
                 self.LAST_PUBLISHED = datetime.datetime.strptime(
-                    published_time["LAST_PUBLISHED"], self.BC_TIME_FORMAT)
+                    published_time["LAST_PUBLISHED"], self.BC_TIME_FORMAT
+                )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
-            print(f"ERROR: {e}")
+            logging.error(f"ERROR: {e}")
 
     def update_lasttimes(self):
         # Save lasttimes in json file
@@ -46,13 +48,14 @@ class bleepingcom:
             with open(self.PUBLISH_BC_JSON_PATH, "w") as json_file:
                 json.dump(
                     {
-                        "LAST_PUBLISHED":
-                        self.LAST_PUBLISHED.strftime(self.BC_TIME_FORMAT),
+                        "LAST_PUBLISHED": self.LAST_PUBLISHED.strftime(
+                            self.BC_TIME_FORMAT
+                        ),
                     },
                     json_file,
                 )
         except Exception as e:
-            print(f"ERROR: {e}")
+            logging.error(f"ERROR: {e}")
 
     ################## SEARCH STORIES FROM BLEEPING COMPUTER ####################
 
@@ -64,11 +67,11 @@ class bleepingcom:
         filtered_stories = []
         new_last_time = last_published
         for story in stories:
-            story_time = datetime.datetime.strptime(story["published"],
-                                                    self.BC_TIME_FORMAT)
+            story_time = datetime.datetime.strptime(
+                story["published"], self.BC_TIME_FORMAT
+            )
             if story_time > last_published:
-                if self.valid or self.is_summ_keyword_present(
-                        story["description"]):
+                if self.valid or self.is_summ_keyword_present(story["description"]):
 
                     filtered_stories.append(story)
 
@@ -86,7 +89,8 @@ class bleepingcom:
     def get_new_stories(self):
         stories = self.get_stories(self.BLEEPING_COM_UR)
         filtered_stories, new_published_time = self.filter_stories(
-            stories["entries"], self.LAST_PUBLISHED)
+            stories["entries"], self.LAST_PUBLISHED
+        )
         self.LAST_PUBLISHED = new_published_time
         return filtered_stories
 
@@ -94,16 +98,17 @@ class bleepingcom:
         # Generate new CVE message for sending to slack
         embed = Embed(
             title=f"🔈 *{new_story['title']}*",
-            description=new_story["summary"] if len(new_story["summary"]) < 500
+            description=new_story["summary"]
+            if len(new_story["summary"]) < 500
             else new_story["summary"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
-        embed.add_field(name=f"📅  *Published*",
-                        value=f"{new_story['published']}",
-                        inline=True)
-        embed.add_field(name=f"More Information",
-                        value=f"{new_story['link']}",
-                        inline=False)
+        embed.add_field(
+            name=f"📅  *Published*", value=f"{new_story['published']}", inline=True
+        )
+        embed.add_field(
+            name=f"More Information", value=f"{new_story['link']}", inline=False
+        )
 
         return embed
