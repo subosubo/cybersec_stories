@@ -19,9 +19,8 @@ from otxalien import otxalien
 log = logging.getLogger("cybersecstories")
 log.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter(
-    "%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
-)
+formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s",
+                              "%Y-%m-%d %H:%M:%S")
 
 # Log to file
 filehandler = logging.FileHandler("cybersec_stories.log", "w", "utf-8")
@@ -41,8 +40,7 @@ log.addHandler(streamhandler)
 def load_keywords():
     # Load keywords from config file
     KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
-    )
+        pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -86,11 +84,11 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        except HTTPException as e:
-            log.error(f"{e}")
+        except RateLimited(600.0):
+            log.debug("ratelimited error")
             os.system("kill 1")
-        except RateLimited as e:
-            log.error(f"{e}")
+        except HTTPException(status=429):
+            log.debug("http error")
             os.system("kill 1")
             # await webhook.send(embed=content)
 
