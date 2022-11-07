@@ -84,9 +84,9 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        except RateLimited(600.0):
-            log.debug("ratelimited error")
-            os.system("kill 1")
+        #except RateLimited(600.0):
+        #    log.debug("ratelimited error")
+        #    os.system("kill 1")
         except HTTPException(status=429):
             log.debug("http error")
             os.system("kill 1")
