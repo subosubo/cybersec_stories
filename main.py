@@ -24,7 +24,7 @@ formatter = logging.Formatter(
 )
 
 # Log to file
-filehandler = logging.FileHandler("cybersec_stories.log", "w", "utf-8")
+filehandler = logging.FileHandler("cybersec_stories.log", "a", "utf-8")
 filehandler.setLevel(logging.DEBUG)
 filehandler.setFormatter(formatter)
 log.addHandler(filehandler)
