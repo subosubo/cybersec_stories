@@ -8,9 +8,9 @@ from os.path import join
 import aiohttp
 import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from discord import Embed, HTTPException, RateLimited, Webhook
-
 from bleepingcomrss import bleepingcom
+from discord import Embed, HTTPException, RateLimited, Webhook
+from hackernews import hackernews
 from keep_alive import keep_alive
 from otxalien import otxalien
 
@@ -19,8 +19,9 @@ from otxalien import otxalien
 log = logging.getLogger("cybersecstories")
 log.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s",
-                              "%Y-%m-%d %H:%M:%S")
+formatter = logging.Formatter(
+    "%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
+)
 
 # Log to file
 filehandler = logging.FileHandler("cybersec_stories.log", "w", "utf-8")
@@ -40,7 +41,8 @@ log.addHandler(streamhandler)
 def load_keywords():
     # Load keywords from config file
     KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
+        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
+    )
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -84,7 +86,7 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        #except RateLimited(600.0):
+        # except RateLimited(600.0):
         #    log.debug("ratelimited error")
         #    os.system("kill 1")
         except HTTPException:
@@ -151,6 +153,25 @@ async def itscheckintime():
         await send_discord_message(mod_pulse_msg)
 
     alien.update_lasttimes()
+
+    hn = hackernews(
+        ALL_VALID,
+        DESCRIPTION_KEYWORDS,
+        DESCRIPTION_KEYWORDS_I,
+        PRODUCT_KEYWORDS,
+        PRODUCT_KEYWORDS_I,
+    )
+    hn.load_lasttimes()
+    new_news = hn.get_new_stories()
+
+    hn_title = [news["title"] for news in new_news]
+    print(f"Bleeping Computer Stories: {hn_title}")
+
+    for hnews in new_news:
+        news_msg = hn.generate_new_story_message(hnews)
+        await send_discord_message(news_msg)
+
+    hn.update_lasttimes()
 
 
 if __name__ == "__main__":
