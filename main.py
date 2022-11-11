@@ -165,7 +165,7 @@ async def itscheckintime():
     new_news = hn.get_new_stories()
 
     hn_title = [news["title"] for news in new_news]
-    print(f"Bleeping Computer Stories: {hn_title}")
+    print(f"The Hacking News: {hn_title}")
 
     for hnews in new_news:
         news_msg = hn.generate_new_story_message(hnews)
