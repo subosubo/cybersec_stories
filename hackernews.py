@@ -99,8 +99,8 @@ class hackernews:
         embed = Embed(
             title=f"🔈 *{new_story['title']}*",
             description=new_story["summary"]
-            if len(new_story["summary"]) < 500
-            else new_story["summary"][:500] + "...",
+            if len(new_story["summary"]) < 250
+            else new_story["summary"][:250] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
