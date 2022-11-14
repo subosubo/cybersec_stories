@@ -143,51 +143,51 @@ class otxalien:
 
         return filtered_pulses
 
-    def generate_new_pulse_message(self, new_story) -> Embed:
+    def generate_new_pulse_message(self, new_pulse) -> Embed:
         # Generate new CVE message for sending to slack
         nl = "\n"
         embed = Embed(
-            title=f"🔈 *{new_story['name']}*",
-            description=new_story["description"]
-            if len(new_story["description"]) < 500
-            else new_story["description"][:500] + "...",
+            title=f"🔈 *{new_pulse['name']}*",
+            description=new_pulse["description"]
+            if len(new_pulse["description"]) < 500
+            else new_pulse["description"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
         embed.add_field(
-            name=f"📅  *Published*", value=f"{new_story['created']}", inline=True
+            name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
         )
         embed.add_field(
-            name=f"📅  *Last Modified*", value=f"{new_story['modified']}", inline=True
+            name=f"📅  *Last Modified*", value=f"{new_pulse['modified']}", inline=True
         )
         embed.add_field(
             name=f"More Information (_limit to 5_)",
-            value=f"{nl.join(new_story['references'][:5])}",
+            value=f"{nl.join(new_pulse['references'][:5])}",
             inline=False,
         )
 
         return embed
 
-    def generate_mod_pulse_message(self, new_story) -> Embed:
+    def generate_mod_pulse_message(self, mod_pulse) -> Embed:
         # Generate new CVE message for sending to slack
         nl = "\n"
         embed = Embed(
-            title=f"🔈 *Updated: {new_story['name']}*",
-            description=new_story["description"]
-            if len(new_story["description"]) < 500
-            else new_story["description"][:500] + "...",
+            title=f"🔈 *Updated: {mod_pulse['name']}*",
+            description=mod_pulse["description"]
+            if len(mod_pulse["description"]) < 500
+            else mod_pulse["description"][:500] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
         embed.add_field(
-            name=f"📅  *Published*", value=f"{new_story['created']}", inline=True
+            name=f"📅  *Published*", value=f"{mod_pulse['created']}", inline=True
         )
         embed.add_field(
-            name=f"📅  *Last Modified*", value=f"{new_story['modified']}", inline=True
+            name=f"📅  *Last Modified*", value=f"{mod_pulse['modified']}", inline=True
         )
         embed.add_field(
             name=f"More Information (_limit to 5_)",
-            value=f"{nl.join(new_story['references'][:5])}",
+            value=f"{nl.join(mod_pulse['references'][:5])}",
             inline=False,
         )
 
