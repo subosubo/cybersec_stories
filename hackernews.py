@@ -40,7 +40,7 @@ class hackernews:
                 )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
-            self.logger.error(f"ERROR: {e}")
+            self.logger.error(f"HN-ERROR-1: {e}")
 
     def update_lasttimes(self):
         # Save lasttimes in json file
@@ -55,7 +55,7 @@ class hackernews:
                     json_file,
                 )
         except Exception as e:
-            self.logger.error(f"ERROR: {e}")
+            self.logger.error(f"HN-ERROR-2: {e}")
 
     ################## SEARCH STORIES FROM THE HACKING NEW ####################
 

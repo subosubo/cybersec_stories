@@ -52,7 +52,7 @@ class otxalien:
                 )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
-            self.logger.error(f"ERROR: {e}")
+            self.logger.error(f"OA-ERROR-1: {e}")
 
     def update_lasttimes(self):
         # Save lasttimes in json file
@@ -70,7 +70,7 @@ class otxalien:
                 )
 
         except Exception as e:
-            self.logger.error(f"ERROR: {e}")
+            self.logger.error(f"0A-ERROR-2: {e}")
 
     ################## GET PULSES FROM OTX ALIEN  ####################
 
