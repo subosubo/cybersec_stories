@@ -54,8 +54,6 @@ class otxalien:
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
             self.logger.error(f"ERROR: {e}")
 
-    # print(f"Last_Published: {LAST_PUBLISHED}")
-
     def update_lasttimes(self):
         # Save lasttimes in json file
         try:
@@ -137,7 +135,7 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_MODIFIED, time_type.created
+            stories["results"], self.ALIEN_MODIFIED, time_type.modified
         )
         self.ALIEN_MODIFIED = new_last_time
 
