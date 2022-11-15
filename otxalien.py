@@ -135,7 +135,7 @@ class otxalien:
 
         stories = self.get_sub_pulse()
         filtered_pulses, new_last_time = self.filter_pulse(
-            stories["results"], self.ALIEN_MODIFIED, time_type.modified
+            stories["results"], self.ALIEN_MODIFIED, time_type.created
         )
         self.ALIEN_MODIFIED = new_last_time
 
@@ -143,28 +143,37 @@ class otxalien:
 
     def generate_new_pulse_message(self, new_pulse) -> Embed:
         # Generate new CVE message for sending to slack
+        #print(f"msg>{new_pulse}")
         nl = "\n"
-        embed = Embed(
-            title=f"🔈 *{new_pulse['name']}*",
-            description=new_pulse["description"]
-            if len(new_pulse["description"]) < 500
-            else new_pulse["description"][:500] + "...",
-            timestamp=datetime.datetime.utcnow(),
-            color=Color.light_gray(),
-        )
-        embed.add_field(
-            name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
-        )
-        embed.add_field(
-            name=f"📅  *Last Modified*", value=f"{new_pulse['modified']}", inline=True
-        )
-        embed.add_field(
-            name=f"More Information (_limit to 5_)",
-            value=f"{nl.join(new_pulse['references'][:5])}",
-            inline=False,
-        )
-
-        return embed
+        if (new_pulse['description']):
+            embed = Embed(
+                title=f"🔈 *{new_pulse['name']}*",
+                description=new_pulse["description"]
+                if len(new_pulse["description"]) < 500
+                else new_pulse["description"][:500] + "...",
+                timestamp=datetime.datetime.utcnow(),
+                color=Color.light_gray(),
+            )
+            embed.add_field(
+                name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
+            )
+            embed.add_field(
+                name=f"📅  *Last Modified*", value=f"{new_pulse['modified']}", inline=True
+            )
+    
+            if (len(new_pulse['references'])):
+                embed.add_field(
+                    name=f"More Information (_limit to 5_)",
+                    value=f"{nl.join(new_pulse['references'][:5])}",
+                    inline=False,
+                )
+            else:
+                embed.add_field(
+                    name=f"More Information:",
+                    value=f"https://otx.alienvault.com/pulse/{new_pulse['id']}",
+                    inline=False,
+                )
+            return embed
 
     def generate_mod_pulse_message(self, mod_pulse) -> Embed:
         # Generate new CVE message for sending to slack
@@ -183,10 +192,17 @@ class otxalien:
         embed.add_field(
             name=f"📅  *Last Modified*", value=f"{mod_pulse['modified']}", inline=True
         )
-        embed.add_field(
-            name=f"More Information (_limit to 5_)",
-            value=f"{nl.join(mod_pulse['references'][:5])}",
-            inline=False,
-        )
+        try:
+            embed.add_field(
+                name=f"More Information (_limit to 5_)",
+                value=f"{nl.join(mod_pulse['references'][:5])}",
+                inline=False,
+            )
+        except KeyError:
+            embed.add_field(
+                name=f"More Information (_limit to 5_)",
+                value=f"N/A",
+                inline=False,
+            )
 
         return embed

@@ -9,7 +9,7 @@ import aiohttp
 import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bleepingcomrss import bleepingcom
-from discord import Embed, HTTPException, RateLimited, Webhook
+from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from keep_alive import keep_alive
 from otxalien import otxalien
@@ -86,92 +86,98 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-        # except RateLimited(600.0):
-        #    log.debug("ratelimited error")
-        #    os.system("kill 1")
+    
         except HTTPException:
             log.debug("http error")
             os.system("kill 1")
-            # await webhook.send(embed=content)
-
+        except Exception as e:
+            log.debug(f"{e}")
+            os.system("kill 1")
 
 #################### MAIN BODY #########################
 async def itscheckintime():
 
-    (
-        ALL_VALID,
-        DESCRIPTION_KEYWORDS,
-        DESCRIPTION_KEYWORDS_I,
-        PRODUCT_KEYWORDS,
-        PRODUCT_KEYWORDS_I,
-    ) = load_keywords()
+    try:
 
-    # bleeping
-    bc = bleepingcom(
-        ALL_VALID,
-        DESCRIPTION_KEYWORDS,
-        DESCRIPTION_KEYWORDS_I,
-        PRODUCT_KEYWORDS,
-        PRODUCT_KEYWORDS_I,
-    )
-    bc.load_lasttimes()
-    new_stories = bc.get_new_stories()
-
-    bc_title = [new_story["title"] for new_story in new_stories]
-    print(f"Bleeping Computer Stories: {bc_title}")
-
-    for story in new_stories:
-        story_msg = bc.generate_new_story_message(story)
-        await send_discord_message(story_msg)
-
-    bc.update_lasttimes()
-
-    # otxalien
-    alien = otxalien(
-        ALL_VALID,
-        DESCRIPTION_KEYWORDS,
-        DESCRIPTION_KEYWORDS_I,
-        PRODUCT_KEYWORDS,
-        PRODUCT_KEYWORDS_I,
-    )
-    alien.load_lasttimes()
-    new_pulses = alien.get_new_pulse()
-    mod_pulses = alien.get_modified_pulse()
-
-    pulse_title = [new_pulse["name"] for new_pulse in new_pulses]
-    print(f"OTX Alien pulses: {pulse_title}")
-
-    mod_pulse_title = [mod_pulse["name"] for mod_pulse in mod_pulses]
-    print(f"OTX Alien mod pulses: {mod_pulse_title}")
-
-    for pulse in new_pulses:
-        pulse_msg = alien.generate_new_pulse_message(pulse)
-        await send_discord_message(pulse_msg)
-
-    for mod_pulse in mod_pulses:
-        mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
-        await send_discord_message(mod_pulse_msg)
-
-    alien.update_lasttimes()
-
-    hn = hackernews(
-        ALL_VALID,
-        DESCRIPTION_KEYWORDS,
-        DESCRIPTION_KEYWORDS_I,
-        PRODUCT_KEYWORDS,
-        PRODUCT_KEYWORDS_I,
-    )
-    hn.load_lasttimes()
-    new_news = hn.get_new_stories()
-
-    hn_title = [news["title"] for news in new_news]
-    print(f"The Hacking News: {hn_title}")
-
-    for hnews in new_news:
-        news_msg = hn.generate_new_story_message(hnews)
-        await send_discord_message(news_msg)
-
-    hn.update_lasttimes()
+        (
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        ) = load_keywords()
+    
+        # bleeping
+        bc = bleepingcom(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        bc.load_lasttimes()
+        new_stories = bc.get_new_stories()
+    
+        bc_title = [new_story["title"] for new_story in new_stories]
+        print(f"Bleeping Computer Stories: {bc_title}")
+    
+        for story in new_stories:
+            story_msg = bc.generate_new_story_message(story)
+            await send_discord_message(story_msg)
+    
+        bc.update_lasttimes()
+    
+        # otxalien
+        alien = otxalien(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        alien.load_lasttimes()
+        new_pulses = alien.get_new_pulse()
+    
+        pulse_title = [new_pulse["name"] for new_pulse in new_pulses]
+        print(f"OTX Alien pulses: {pulse_title}")
+    
+        for pulse in new_pulses:
+            pulse_msg = alien.generate_new_pulse_message(pulse)
+            if (pulse_msg):
+                await send_discord_message(pulse_msg)
+    
+        #mod_pulses = alien.get_modified_pulse()
+        
+        #mod_pulse_title = [mod_pulse["name"] for mod_pulse in mod_pulses]
+        #print(f"OTX Alien mod pulses: {mod_pulse_title}")
+    
+        #for mod_pulse in mod_pulses:
+        #    mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
+        #    await send_discord_message(mod_pulse_msg)
+    
+        alien.update_lasttimes()
+    
+        hn = hackernews(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        hn.load_lasttimes()
+        new_news = hn.get_new_stories()
+    
+        hn_title = [news["title"] for news in new_news]
+        print(f"The Hacking News: {hn_title}")
+    
+        for hnews in new_news:
+            news_msg = hn.generate_new_story_message(hnews)
+            await send_discord_message(news_msg)
+    
+        hn.update_lasttimes()
+    
+    except Exception as e:
+        log.error(f"{e}")    
 
 
 if __name__ == "__main__":
