@@ -62,7 +62,7 @@ def load_keywords():
                 PRODUCT_KEYWORDS_I,
             )
     except Exception as e:
-        log.error(e)
+        log.error(f"Loading keyword Error:{e}")
         sys.exit(1)
 
 
@@ -87,8 +87,8 @@ async def sendtowebhook(webhookurl: str, content: Embed):
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
     
-        except HTTPException:
-            log.debug("http error")
+        except HTTPException as e:
+            log.error(f"HTTP Error: {e}")
             os.system("kill 1")
         except Exception as e:
             log.debug(f"{e}")
