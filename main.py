@@ -19,9 +19,8 @@ from otxalien import otxalien
 log = logging.getLogger("cybersecstories")
 log.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter(
-    "%(asctime)s %(levelname)-8s %(message)s", "%Y-%m-%d %H:%M:%S"
-)
+formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s",
+                              "%Y-%m-%d %H:%M:%S")
 
 # Log to file
 filehandler = logging.FileHandler("cybersec_stories.log", "a", "utf-8")
@@ -41,8 +40,7 @@ log.addHandler(streamhandler)
 def load_keywords():
     # Load keywords from config file
     KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
-    )
+        pathlib.Path(__file__).parent.absolute(), "config/config.yaml")
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -86,13 +84,14 @@ async def sendtowebhook(webhookurl: str, content: Embed):
         try:
             webhook = Webhook.from_url(webhookurl, session=session)
             await webhook.send(embed=content)
-    
+
         except HTTPException as e:
             log.error(f"HTTP Error: {e}")
             os.system("kill 1")
         except Exception as e:
             log.debug(f"{e}")
             os.system("kill 1")
+
 
 #################### MAIN BODY #########################
 async def itscheckintime():
@@ -106,7 +105,7 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         ) = load_keywords()
-    
+
         # bleeping
         bc = bleepingcom(
             ALL_VALID,
@@ -117,16 +116,16 @@ async def itscheckintime():
         )
         bc.load_lasttimes()
         new_stories = bc.get_new_stories()
-    
+
         bc_title = [new_story["title"] for new_story in new_stories]
         print(f"Bleeping Computer Stories: {bc_title}")
-    
+
         for story in new_stories:
             story_msg = bc.generate_new_story_message(story)
             await send_discord_message(story_msg)
-    
+
         bc.update_lasttimes()
-    
+
         # otxalien
         alien = otxalien(
             ALL_VALID,
@@ -137,26 +136,26 @@ async def itscheckintime():
         )
         alien.load_lasttimes()
         new_pulses = alien.get_new_pulse()
-    
+
         pulse_title = [new_pulse["name"] for new_pulse in new_pulses]
         print(f"OTX Alien pulses: {pulse_title}")
-    
+
         for pulse in new_pulses:
             pulse_msg = alien.generate_new_pulse_message(pulse)
             if (pulse_msg):
                 await send_discord_message(pulse_msg)
-    
+
         #mod_pulses = alien.get_modified_pulse()
-        
+
         #mod_pulse_title = [mod_pulse["name"] for mod_pulse in mod_pulses]
         #print(f"OTX Alien mod pulses: {mod_pulse_title}")
-    
+
         #for mod_pulse in mod_pulses:
         #    mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
         #    await send_discord_message(mod_pulse_msg)
-    
+
         alien.update_lasttimes()
-    
+
         hn = hackernews(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
@@ -166,18 +165,18 @@ async def itscheckintime():
         )
         hn.load_lasttimes()
         new_news = hn.get_new_stories()
-    
+
         hn_title = [news["title"] for news in new_news]
         print(f"The Hacking News: {hn_title}")
-    
+
         for hnews in new_news:
             news_msg = hn.generate_new_story_message(hnews)
             await send_discord_message(news_msg)
-    
+
         hn.update_lasttimes()
-    
+
     except Exception as e:
-        log.error(f"{e}")    
+        log.error(f"{e}")
 
 
 if __name__ == "__main__":
