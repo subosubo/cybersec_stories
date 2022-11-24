@@ -3,7 +3,8 @@ import logging
 import os
 import pathlib
 import sys
-from os.path import join
+from os.path import join, dirname
+from dotenv import load_dotenv
 
 import aiohttp
 import yaml
@@ -11,10 +12,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bleepingcomrss import bleepingcom
 from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
-from keep_alive import keep_alive
+#from keep_alive import keep_alive
 from otxalien import otxalien
 
 #################### LOG CONFIG #########################
+
+dotenv_path = join(dirname(__file__), ".env")
+load_dotenv(dotenv_path)
 
 log = logging.getLogger("cybersecstories")
 log.setLevel(logging.DEBUG)
@@ -187,7 +191,7 @@ if __name__ == "__main__":
 
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
     try:
-        keep_alive()
+        #keep_alive()
         asyncio.get_event_loop().run_forever()
     except (KeyboardInterrupt, SystemExit) as e:
         log.error(f"{e}")
