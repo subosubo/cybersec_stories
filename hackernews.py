@@ -12,7 +12,6 @@ utc = pytz.UTC
 
 
 class hackernews:
-
     def __init__(self, valid, keywords, keywords_i, product, product_i):
         self.valid = valid
         self.keywords = keywords
@@ -22,12 +21,14 @@ class hackernews:
 
         self.HACKER_NEWS_UR = "https://feeds.feedburner.com/TheHackersNews"
         self.PUBLISH_HN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(),
-            "output/hacker_news_record.json")
+            pathlib.Path(__file__).parent.absolute(), "output/hacker_news_record.json"
+        )
         self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(
-            days=1)
+        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger("cybersecstories")
+
+        self.new_news = []
+        self.hn_title = []
 
     ################## LOAD CONFIGURATIONS ####################
 
@@ -38,7 +39,8 @@ class hackernews:
             with open(self.PUBLISH_HN_JSON_PATH, "r") as json_file:
                 published_time = json.load(json_file)
                 self.LAST_PUBLISHED = datetime.datetime.strptime(
-                    published_time["LAST_PUBLISHED"], self.HN_TIME_FORMAT)
+                    published_time["LAST_PUBLISHED"], self.HN_TIME_FORMAT
+                )
 
         except Exception as e:  # If error, just keep the fault date (today - 1 day)
             self.logger.error(f"HN-ERROR-1: {e}")
@@ -49,8 +51,9 @@ class hackernews:
             with open(self.PUBLISH_HN_JSON_PATH, "w") as json_file:
                 json.dump(
                     {
-                        "LAST_PUBLISHED":
-                        self.LAST_PUBLISHED.strftime(self.HN_TIME_FORMAT),
+                        "LAST_PUBLISHED": self.LAST_PUBLISHED.strftime(
+                            self.HN_TIME_FORMAT
+                        ),
                     },
                     json_file,
                 )
@@ -67,11 +70,11 @@ class hackernews:
         filtered_stories = []
         new_last_time = last_published
         for story in stories:
-            story_time = datetime.datetime.strptime(story["published"],
-                                                    self.HN_TIME_FORMAT)
+            story_time = datetime.datetime.strptime(
+                story["published"], self.HN_TIME_FORMAT
+            )
             if story_time > last_published:
-                if self.valid or self.is_summ_keyword_present(
-                        story["description"]):
+                if self.valid or self.is_summ_keyword_present(story["description"]):
 
                     filtered_stories.append(story)
 
@@ -88,25 +91,29 @@ class hackernews:
 
     def get_new_stories(self):
         stories = self.get_stories(self.HACKER_NEWS_UR)
-        filtered_stories, new_published_time = self.filter_stories(
-            stories["entries"], self.LAST_PUBLISHED)
-        self.LAST_PUBLISHED = new_published_time
-        return filtered_stories
+        self.new_news, self.LAST_PUBLISHED = self.filter_stories(
+            stories["entries"], self.LAST_PUBLISHED
+        )
+
+        self.hn_title = [news["title"] for news in self.new_news]
+        print(f"The Hacking News: {self.hn_title}")
+        self.logger.info(f"The Hacking News: {self.hn_title}")
 
     def generate_new_story_message(self, new_story) -> Embed:
         # Generate new CVE message for sending to slack
         embed = Embed(
             title=f"🔈 *{new_story['title']}*",
-            description=new_story["summary"] if len(new_story["summary"]) < 250
+            description=new_story["summary"]
+            if len(new_story["summary"]) < 250
             else new_story["summary"][:250] + "...",
             timestamp=datetime.datetime.utcnow(),
             color=Color.light_gray(),
         )
-        embed.add_field(name=f"📅  *Published*",
-                        value=f"{new_story['published']}",
-                        inline=True)
-        embed.add_field(name=f"More Information",
-                        value=f"{new_story['link']}",
-                        inline=False)
+        embed.add_field(
+            name=f"📅  *Published*", value=f"{new_story['published']}", inline=True
+        )
+        embed.add_field(
+            name=f"More Information", value=f"{new_story['link']}", inline=False
+        )
 
         return embed

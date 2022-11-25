@@ -120,14 +120,12 @@ async def itscheckintime():
             PRODUCT_KEYWORDS_I,
         )
         bc.load_lasttimes()
-        new_stories = bc.get_new_stories()
+        bc.get_new_stories()
 
-        bc_title = [new_story["title"] for new_story in new_stories]
-        print(f"Bleeping Computer Stories: {bc_title}")
-
-        for story in new_stories:
-            story_msg = bc.generate_new_story_message(story)
-            await send_discord_message(story_msg)
+        if bc.new_stories:  # if bc has entries
+            for story in bc.new_stories:
+                story_msg = bc.generate_new_story_message(story)
+                await send_discord_message(story_msg)
 
         bc.update_lasttimes()
 
@@ -140,24 +138,22 @@ async def itscheckintime():
             PRODUCT_KEYWORDS_I,
         )
         alien.load_lasttimes()
-        new_pulses = alien.get_new_pulse()
+        alien.get_new_pulse()
 
-        pulse_title = [new_pulse["name"] for new_pulse in new_pulses]
-        print(f"OTX Alien pulses: {pulse_title}")
+        if alien.new_pulses:
+            for pulse in alien.new_pulses:
+                pulse_msg = alien.generate_new_pulse_message(
+                    pulse
+                )  # return an embed pulse only if there is a description in subscribed pulse
+                if pulse_msg:
+                    await send_discord_message(pulse_msg)
 
-        for pulse in new_pulses:
-            pulse_msg = alien.generate_new_pulse_message(pulse)
-            if pulse_msg:
-                await send_discord_message(pulse_msg)
+        alien.get_modified_pulse()
 
-        # mod_pulses = alien.get_modified_pulse()
-
-        # mod_pulse_title = [mod_pulse["name"] for mod_pulse in mod_pulses]
-        # print(f"OTX Alien mod pulses: {mod_pulse_title}")
-
-        # for mod_pulse in mod_pulses:
-        #    mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
-        #    await send_discord_message(mod_pulse_msg)
+        if alien.mod_pulses:
+            for mod_pulse in alien.mod_pulses:
+                mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
+                await send_discord_message(mod_pulse_msg)
 
         alien.update_lasttimes()
 
@@ -169,14 +165,12 @@ async def itscheckintime():
             PRODUCT_KEYWORDS_I,
         )
         hn.load_lasttimes()
-        new_news = hn.get_new_stories()
+        hn.get_new_stories()
 
-        hn_title = [news["title"] for news in new_news]
-        print(f"The Hacking News: {hn_title}")
-
-        for hnews in new_news:
-            news_msg = hn.generate_new_story_message(hnews)
-            await send_discord_message(news_msg)
+        if hn.new_news:
+            for hnews in hn.new_news:
+                news_msg = hn.generate_new_story_message(hnews)
+                await send_discord_message(news_msg)
 
         hn.update_lasttimes()
 
