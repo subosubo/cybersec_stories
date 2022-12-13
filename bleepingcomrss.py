@@ -21,7 +21,7 @@ class bleepingcom:
 
         self.BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
         self.PUBLISH_BC_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(), "output/record.json"
+            pathlib.Path(__file__).parent.absolute(), "output/bleeping_com_record.json"
         )
         self.BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
