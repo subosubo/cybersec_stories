@@ -98,22 +98,3 @@ class hackernews:
         self.hn_title = [news["title"] for news in self.new_news]
         print(f"The Hacking News: {self.hn_title}")
         self.logger.info(f"The Hacking News: {self.hn_title}")
-
-    def generate_new_story_message(self, new_story) -> Embed:
-        # Generate new CVE message for sending to slack
-        embed = Embed(
-            title=f"🔈 *{new_story['title']}*",
-            description=new_story["summary"]
-            if len(new_story["summary"]) < 250
-            else new_story["summary"][:250] + "...",
-            timestamp=datetime.datetime.utcnow(),
-            color=Color.light_gray(),
-        )
-        embed.add_field(
-            name=f"📅  *Published*", value=f"{new_story['published']}", inline=True
-        )
-        embed.add_field(
-            name=f"More Information", value=f"{new_story['link']}", inline=False
-        )
-
-        return embed

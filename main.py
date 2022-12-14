@@ -5,6 +5,8 @@ import pathlib
 import sys
 from os.path import join, dirname
 from dotenv import load_dotenv
+from discord import Color
+import datetime
 
 import aiohttp
 import yaml
@@ -44,34 +46,35 @@ logger.addHandler(f_handler)
 #################### LOAD STORIES FROM JSON #########################
 
 STORY_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/stories.json")
-MOD_STORY_JSON_PATH = join(
-    pathlib.Path(__file__).parent.absolute(), "output/modstories.json"
+PULSE_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/pulse.json")
+MOD_PULSE_JSON_PATH = join(
+    pathlib.Path(__file__).parent.absolute(), "output/modpulse.json"
 )
 
 
 def load_stories_to_publish():
     try:
-        liststories = []
-        listmodstories = []
         with open(STORY_JSON_PATH) as fp:
             liststories = json.load(fp)
-        with open(MOD_STORY_JSON_PATH) as modfp:
-            listmodstories = json.load(modfp)
+        with open(MOD_PULSE_JSON_PATH) as fp:
+            listmodpulse = json.load(fp)
+        with open(PULSE_JSON_PATH) as fp:
+            listpulse = json.load(fp)
         fp.close()
-        modfp.close()
-        return liststories, listmodstories
+        return liststories, listmodpulse, listpulse
     except Exception as e:
         logger.error(f"ERROR - {e}")
 
 
-def store_stories_for_later(liststories, listmodstories):
+def store_stories_for_later(liststories, listmodpulse, listpulse):
     try:
         with open(STORY_JSON_PATH, "w") as json_file:
             json.dump(liststories, json_file, indent=4, separators=(",", ": "))
-        with open(MOD_STORY_JSON_PATH, "w") as mod_json_file:
-            json.dump(listmodstories, mod_json_file, indent=4, separators=(",", ": "))
+        with open(MOD_PULSE_JSON_PATH, "w") as json_file:
+            json.dump(listmodpulse, json_file, indent=4, separators=(",", ": "))
+        with open(PULSE_JSON_PATH, "w") as json_file:
+            json.dump(listpulse, json_file, indent=4, separators=(",", ": "))
         json_file.close()
-        mod_json_file.close()
     except Exception as e:
         logger.error(f"ERROR - {e}")
 
@@ -112,6 +115,93 @@ def load_keywords():
 #################### SEND MESSAGES #########################
 
 
+def generate_new_story_message(new_story) -> Embed:
+    # Generate new CVE message for sending to discord
+    embed = Embed(
+        title=f"🔈 *{new_story['title']}*",
+        description=new_story["summary"]
+        if len(new_story["summary"]) < 500
+        else new_story["summary"][:500] + "...",
+        timestamp=datetime.datetime.utcnow(),
+        color=Color.light_gray(),
+    )
+    embed.add_field(
+        name=f"📅  *Published*", value=f"{new_story['published']}", inline=True
+    )
+    embed.add_field(
+        name=f"More Information", value=f"{new_story['link']}", inline=False
+    )
+    return embed
+
+
+def generate_new_pulse_message(new_pulse) -> Embed:
+
+    nl = "\n"
+    if new_pulse["description"]:
+        embed = Embed(
+            title=f"🔈 *{new_pulse['name']}*",
+            description=new_pulse["description"]
+            if len(new_pulse["description"]) < 500
+            else new_pulse["description"][:500] + "...",
+            timestamp=datetime.datetime.utcnow(),
+            color=Color.light_gray(),
+        )
+        embed.add_field(
+            name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
+        )
+        embed.add_field(
+            name=f"📅  *Last Modified*",
+            value=f"{new_pulse['modified']}",
+            inline=True,
+        )
+
+        if len(new_pulse["references"]):
+            embed.add_field(
+                name=f"More Information (_limit to 5_)",
+                value=f"{nl.join(new_pulse['references'][:5])}",
+                inline=False,
+            )
+        else:
+            embed.add_field(
+                name=f"More Information:",
+                value=f"https://otx.alienvault.com/pulse/{new_pulse['id']}",
+                inline=False,
+            )
+            return embed
+
+
+def generate_mod_pulse_message(mod_pulse) -> Embed:
+    # Generate new CVE message for sending to discord
+    nl = "\n"
+    embed = Embed(
+        title=f"🔈 *Updated: {mod_pulse['name']}*",
+        description=mod_pulse["description"]
+        if len(mod_pulse["description"]) < 500
+        else mod_pulse["description"][:500] + "...",
+        timestamp=datetime.datetime.utcnow(),
+        color=Color.light_gray(),
+    )
+    embed.add_field(
+        name=f"📅  *Published*", value=f"{mod_pulse['created']}", inline=True
+    )
+    embed.add_field(
+        name=f"📅  *Last Modified*", value=f"{mod_pulse['modified']}", inline=True
+    )
+    try:
+        embed.add_field(
+            name=f"More Information (_limit to 5_)",
+            value=f"{nl.join(mod_pulse['references'][:5])}",
+            inline=False,
+        )
+    except KeyError:
+        embed.add_field(
+            name=f"More Information (_limit to 5_)",
+            value=f"N/A",
+            inline=False,
+        )
+    return embed
+
+
 async def send_discord_message(message: Embed):
     """Send a message to the discord channel webhook"""
 
@@ -143,10 +233,11 @@ async def itscheckintime():
 
     try:
 
-        list_to_pub = []
-        mod_list_to_pub = []
+        stories_to_pub = []
+        pulse_to_pub = []
+        mod_pulse_to_pub = []
 
-        list_to_pub, mod_list_to_pub = load_stories_to_publish()
+        stories_to_pub, mod_pulse_to_pub, pulse_to_pub = load_stories_to_publish()
 
         (
             ALL_VALID,
@@ -194,49 +285,46 @@ async def itscheckintime():
 
         if bc.new_stories:
             for story in bc.new_stories:
-                list_to_pub.append(story)
+                stories_to_pub.append(story)
 
         if hn.new_news:
             for hnews in hn.new_news:
-                list_to_pub.append(hnews)
+                stories_to_pub.append(hnews)
 
         if alien.new_pulses:
             for pulse in alien.new_pulses:
                 if pulse["description"]:  # only publish if there is a description
-                    list_to_pub.append(pulse)
+                    pulse_to_pub.append(pulse)
 
         if alien.mod_pulses:
             for mod_pulse in alien.mod_pulses:
                 if pulse["description"]:
-                    mod_list_to_pub.append(mod_pulse)
+                    mod_pulse_to_pub.append(mod_pulse)
 
-        # if bc.new_stories:  # if bc has entries
-        #     for story in bc.new_stories:
-        #         story_msg = bc.generate_new_story_message(story)
-        #         await send_discord_message(story_msg)
+        if stories_to_pub:
+            for story in stories_to_pub[:max_publish]:
+                story_msg = generate_new_story_message(story)
+                await send_discord_message(story_msg)
 
-        # otxalien
+        if pulse_to_pub:
+            for pulse in pulse_to_pub[:max_publish]:
+                pulse_msg = generate_new_pulse_message(pulse)
+                await send_discord_message(pulse_msg)
 
-        # if alien.new_pulses:
-        #     for pulse in alien.new_pulses:
-        #         pulse_msg = alien.generate_new_pulse_message(
-        #             pulse
-        #         )  # return an embed pulse only if there is a description in subscribed pulse
-        #         if pulse_msg:
-        #             await send_discord_message(pulse_msg)
+        if mod_pulse_to_pub:
+            for modpulse in mod_pulse_to_pub[:max_publish]:
+                pulse_msg = generate_mod_pulse_message(modpulse)
+                await send_discord_message(pulse_msg)
 
-        # if alien.mod_pulses:
-        #     for mod_pulse in alien.mod_pulses:
-        #         mod_pulse_msg = alien.generate_mod_pulse_message(mod_pulse)
-        #         await send_discord_message(mod_pulse_msg)
-
-        # if hn.new_news:
-        #     for hnews in hn.new_news:
-        #         news_msg = hn.generate_new_story_message(hnews)
-        #         await send_discord_message(news_msg)
+        store_stories_for_later(
+            stories_to_pub[max_publish:],
+            mod_pulse_to_pub[max_publish:],
+            pulse_to_pub[max_publish:],
+        )
 
     except Exception as e:
         logger.error(f"{e}")
+        sys.exit(1)
 
 
 #################### MAIN #########################
