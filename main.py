@@ -7,6 +7,7 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from discord import Color
 import datetime
+from time import sleep
 
 import aiohttp
 import yaml
@@ -63,7 +64,7 @@ def load_stories_to_publish():
         fp.close()
         return liststories, listmodpulse, listpulse
     except Exception as e:
-        logger.error(f"ERROR - {e}")
+        logger.error(f"ERROR_LOAD:{e}")
 
 
 def store_stories_for_later(liststories, listmodpulse, listpulse):
@@ -76,7 +77,7 @@ def store_stories_for_later(liststories, listmodpulse, listpulse):
             json.dump(listpulse, json_file, indent=4, separators=(",", ": "))
         json_file.close()
     except Exception as e:
-        logger.error(f"ERROR - {e}")
+        logger.error(f"ERROR_STORE:{e}")
 
 
 #################### LOADING #########################
@@ -108,7 +109,7 @@ def load_keywords():
             PRODUCT_KEYWORDS_I,
         )
     except Exception as e:
-        logger.error(f"Loading keyword Error:{e}")
+        logger.error(f"ERROR_KW:{e}")
         sys.exit(1)
 
 
@@ -221,10 +222,11 @@ async def sendtowebhook(webhookurl: str, content: Embed):
             await webhook.send(embed=content)
 
         except HTTPException as e:
-            logger.error(f"HTTP Error: {e}")
-            os.system("kill 1")
+            logger.error(f"ERROR_SEND_HTTP: {e}")
+            sleep(180)
+            await webhook.send(embed=content)
         except Exception as e:
-            logger.debug(f"{e}")
+            logger.debug(f"ERROR_SEND:{e}")
             os.system("kill 1")
 
 
@@ -323,7 +325,7 @@ async def itscheckintime():
         )
 
     except Exception as e:
-        logger.error(f"{e}")
+        logger.error(f"ERROR-1:{e}")
         sys.exit(1)
 
 
@@ -335,6 +337,7 @@ if __name__ == "__main__":
         itscheckintime, "cron", day_of_week="mon-fri", hour="7-18", minute="*/5"
     )
     scheduler.start()
+
     print("Press Ctrl+{0} to exit".format("Break" if os.name == "nt" else "C"))
 
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
