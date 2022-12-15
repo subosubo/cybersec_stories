@@ -123,7 +123,7 @@ def generate_new_story_message(new_story) -> Embed:
         description=new_story["summary"]
         if len(new_story["summary"]) < 500
         else new_story["summary"][:500] + "...",
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.datetime.now(),
         color=Color.light_gray(),
     )
     embed.add_field(
@@ -144,7 +144,7 @@ def generate_new_pulse_message(new_pulse) -> Embed:
             description=new_pulse["description"]
             if len(new_pulse["description"]) < 500
             else new_pulse["description"][:500] + "...",
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=datetime.datetime.now(),
             color=Color.light_gray(),
         )
         embed.add_field(
@@ -178,7 +178,7 @@ def generate_mod_pulse_message(mod_pulse) -> Embed:
         description=mod_pulse["description"]
         if len(mod_pulse["description"]) < 500
         else mod_pulse["description"][:500] + "...",
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.datetime.now(),
         color=Color.light_gray(),
     )
     embed.add_field(
