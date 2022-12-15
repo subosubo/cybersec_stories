@@ -25,7 +25,7 @@ class hackernews:
         )
         self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger("cybersecstories")
+        self.logger = logging.getLogger(__name__)
 
         self.new_news = []
         self.hn_title = []

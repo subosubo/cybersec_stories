@@ -33,7 +33,7 @@ class otxalien:
         self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
         self.ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
         self.ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger("cybersecstories")
+        self.logger = logging.getLogger(__name__)
 
         self.new_pulses = []
         self.pulse_title = []
