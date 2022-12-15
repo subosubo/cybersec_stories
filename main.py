@@ -155,20 +155,19 @@ def generate_new_pulse_message(new_pulse) -> Embed:
             value=f"{new_pulse['modified']}",
             inline=True,
         )
-
-        if len(new_pulse["references"]):
+        try:
             embed.add_field(
                 name=f"More Information (_limit to 5_)",
                 value=f"{nl.join(new_pulse['references'][:5])}",
                 inline=False,
             )
-        else:
+        except KeyError:
             embed.add_field(
                 name=f"More Information:",
                 value=f"https://otx.alienvault.com/pulse/{new_pulse['id']}",
                 inline=False,
             )
-            return embed
+    return embed
 
 
 def generate_mod_pulse_message(mod_pulse) -> Embed:
