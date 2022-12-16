@@ -28,11 +28,14 @@ class otxalien:
 
         self.ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
         self.PUBLISH_ALIEN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(), "output/alien_record.json"
+            pathlib.Path(__file__).parent.absolute(
+            ), "output/alien_record.json"
         )
         self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
-        self.ALIEN_MODIFIED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
-        self.ALIEN_CREATED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.ALIEN_MODIFIED = datetime.datetime.now(
+            utc) - datetime.timedelta(days=1)
+        self.ALIEN_CREATED = datetime.datetime.now(
+            utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
 
         self.new_pulses = []
@@ -56,7 +59,8 @@ class otxalien:
                     alien_time["CREATED"], self.ALIEN_TIME_FORMAT
                 )
 
-        except Exception as e:  # If error, just keep the fault date (today - 1 day)
+        # If error, just keep the fault date (today - 1 day)
+        except Exception as e:
             self.logger.error(f"OA-ERROR-1: {e}")
 
     def update_lasttimes(self):

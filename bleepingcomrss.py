@@ -21,10 +21,12 @@ class bleepingcom:
 
         self.BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
         self.PUBLISH_BC_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(), "output/bleeping_com_record.json"
+            pathlib.Path(__file__).parent.absolute(
+            ), "output/bleeping_com_record.json"
         )
         self.BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.LAST_PUBLISHED = datetime.datetime.now(
+            utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
 
         self.new_stories = []
@@ -42,7 +44,8 @@ class bleepingcom:
                     published_time["LAST_PUBLISHED"], self.BC_TIME_FORMAT
                 )
 
-        except Exception as e:  # If error, just keep the fault date (today - 1 day)
+        # If error, just keep the fault date (today - 1 day)
+        except Exception as e:
             self.logger.error(f"BC-ERROR-1: {e}")
 
     def update_lasttimes(self):

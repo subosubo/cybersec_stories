@@ -21,10 +21,12 @@ class hackernews:
 
         self.HACKER_NEWS_UR = "https://feeds.feedburner.com/TheHackersNews"
         self.PUBLISH_HN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(), "output/hacker_news_record.json"
+            pathlib.Path(__file__).parent.absolute(
+            ), "output/hacker_news_record.json"
         )
         self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
-        self.LAST_PUBLISHED = datetime.datetime.now(utc) - datetime.timedelta(days=1)
+        self.LAST_PUBLISHED = datetime.datetime.now(
+            utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
 
         self.new_news = []
@@ -42,7 +44,8 @@ class hackernews:
                     published_time["LAST_PUBLISHED"], self.HN_TIME_FORMAT
                 )
 
-        except Exception as e:  # If error, just keep the fault date (today - 1 day)
+        # If error, just keep the fault date (today - 1 day)
+        except Exception as e:
             self.logger.error(f"HN-ERROR-1: {e}")
 
     def update_lasttimes(self):

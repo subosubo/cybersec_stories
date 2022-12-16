@@ -36,7 +36,8 @@ f_handler.setLevel(logging.ERROR)
 
 # Create formatters and add it to handlers
 c_format = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+f_format = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 
@@ -46,8 +47,10 @@ logger.addHandler(f_handler)
 
 #################### LOAD STORIES FROM JSON #########################
 
-STORY_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/stories.json")
-PULSE_JSON_PATH = join(pathlib.Path(__file__).parent.absolute(), "output/pulse.json")
+STORY_JSON_PATH = join(pathlib.Path(
+    __file__).parent.absolute(), "output/stories.json")
+PULSE_JSON_PATH = join(pathlib.Path(
+    __file__).parent.absolute(), "output/pulse.json")
 MOD_PULSE_JSON_PATH = join(
     pathlib.Path(__file__).parent.absolute(), "output/modpulse.json"
 )
@@ -72,7 +75,8 @@ def store_stories_for_later(liststories, listmodpulse, listpulse):
         with open(STORY_JSON_PATH, "w") as json_file:
             json.dump(liststories, json_file, indent=4, separators=(",", ": "))
         with open(MOD_PULSE_JSON_PATH, "w") as json_file:
-            json.dump(listmodpulse, json_file, indent=4, separators=(",", ": "))
+            json.dump(listmodpulse, json_file,
+                      indent=4, separators=(",", ": "))
         with open(PULSE_JSON_PATH, "w") as json_file:
             json.dump(listpulse, json_file, indent=4, separators=(",", ": "))
         json_file.close()
@@ -333,7 +337,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        itscheckintime, "cron", day_of_week="mon-fri", hour="7-18", minute="*/5"
+        itscheckintime, "cron", day_of_week="mon-fri", hour="8-18", minute="*/5"
     )
     scheduler.start()
 
