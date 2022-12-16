@@ -288,38 +288,31 @@ async def itscheckintime():
         hn.get_new_stories()
         hn.update_lasttimes()
 
-        if bc.new_stories:
-            for story in bc.new_stories:
-                stories_to_pub.append(story)
+        for story in bc.new_stories:
+            stories_to_pub.append(story)
 
-        if hn.new_news:
-            for hnews in hn.new_news:
-                stories_to_pub.append(hnews)
+        for hnews in hn.new_news:
+            stories_to_pub.append(hnews)
 
-        if alien.new_pulses:
-            for pulse in alien.new_pulses:
-                if pulse["description"]:  # only publish if there is a description
-                    pulse_to_pub.append(pulse)
+        for pulse in alien.new_pulses:
+            if pulse["description"]:  # only publish if there is a description
+                pulse_to_pub.append(pulse)
 
-        if alien.mod_pulses:
-            for mod_pulse in alien.mod_pulses:
-                if pulse["description"]:
-                    mod_pulse_to_pub.append(mod_pulse)
+        for mod_pulse in alien.mod_pulses:
+            if pulse["description"]:
+                mod_pulse_to_pub.append(mod_pulse)
 
-        if stories_to_pub:
-            for story in stories_to_pub[:max_publish]:
-                story_msg = generate_new_story_message(story)
-                await send_discord_message(story_msg)
+        for story in stories_to_pub[:max_publish]:
+            story_msg = generate_new_story_message(story)
+            await send_discord_message(story_msg)
 
-        if pulse_to_pub:
-            for pulse in pulse_to_pub[:max_publish]:
-                pulse_msg = generate_new_pulse_message(pulse)
-                await send_discord_message(pulse_msg)
+        for pulse in pulse_to_pub[:max_publish]:
+            pulse_msg = generate_new_pulse_message(pulse)
+            await send_discord_message(pulse_msg)
 
-        if mod_pulse_to_pub:
-            for modpulse in mod_pulse_to_pub[:max_publish]:
-                pulse_msg = generate_mod_pulse_message(modpulse)
-                await send_discord_message(pulse_msg)
+        for modpulse in mod_pulse_to_pub[:max_publish]:
+            pulse_msg = generate_mod_pulse_message(modpulse)
+            await send_discord_message(pulse_msg)
 
         store_stories_for_later(
             stories_to_pub[max_publish:],
