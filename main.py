@@ -142,35 +142,34 @@ def generate_new_story_message(new_story) -> Embed:
 def generate_new_pulse_message(new_pulse) -> Embed:
 
     nl = "\n"
-    if new_pulse["description"]:
-        embed = Embed(
-            title=f"🔈 *{new_pulse['name']}*",
-            description=new_pulse["description"]
-            if len(new_pulse["description"]) < 500
-            else new_pulse["description"][:500] + "...",
-            timestamp=datetime.datetime.now(),
-            color=Color.light_gray(),
-        )
+    embed = Embed(
+        title=f"🔈 *{new_pulse['name']}*",
+        description=new_pulse["description"]
+        if len(new_pulse["description"]) < 500
+        else new_pulse["description"][:500] + "...",
+        timestamp=datetime.datetime.now(),
+        color=Color.light_gray(),
+    )
+    embed.add_field(
+        name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
+    )
+    embed.add_field(
+        name=f"📅  *Last Modified*",
+        value=f"{new_pulse['modified']}",
+        inline=True,
+    )
+    try:
         embed.add_field(
-            name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
+            name=f"More Information (_limit to 5_)",
+            value=f"{nl.join(new_pulse['references'][:5])}",
+            inline=False,
         )
+    except KeyError:
         embed.add_field(
-            name=f"📅  *Last Modified*",
-            value=f"{new_pulse['modified']}",
-            inline=True,
+            name=f"More Information:",
+            value=f"https://otx.alienvault.com/pulse/{new_pulse['id']}",
+            inline=False,
         )
-        try:
-            embed.add_field(
-                name=f"More Information (_limit to 5_)",
-                value=f"{nl.join(new_pulse['references'][:5])}",
-                inline=False,
-            )
-        except KeyError:
-            embed.add_field(
-                name=f"More Information:",
-                value=f"https://otx.alienvault.com/pulse/{new_pulse['id']}",
-                inline=False,
-            )
     return embed
 
 
