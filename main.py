@@ -342,7 +342,7 @@ async def itscheckintime():
                 pulse_to_pub.append(pulse)
 
         for mod_pulse in alien.mod_pulses:
-            if pulse["description"]:
+            if mod_pulse["description"]:
                 mod_pulse_to_pub.append(mod_pulse)
 
         for story in stories_to_pub[:max_publish]:
