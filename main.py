@@ -238,10 +238,6 @@ async def itscheckintime():
 
     try:
 
-        stories_to_pub = []
-        pulse_to_pub = []
-        mod_pulse_to_pub = []
-
         stories_to_pub, mod_pulse_to_pub, pulse_to_pub = load_stories_to_publish()
 
         (

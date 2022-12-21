@@ -24,7 +24,7 @@ class vulners:
             pathlib.Path(__file__).parent.absolute(
             ), "output/vulners_record.json"
         )
-        self.VULNERS_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
+        self.VULNERS_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
