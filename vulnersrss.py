@@ -8,7 +8,7 @@ import feedparser
 import pytz
 from discord import Color, Embed
 
-utc = pytz.UTC
+gmt = pytz.timezone('GMT')
 
 
 class vulners:
