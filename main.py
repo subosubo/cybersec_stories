@@ -13,6 +13,7 @@ import aiohttp
 import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bleepingcomrss import bleepingcom
+from vulnersrss import vulners
 from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from otxalien import otxalien
@@ -263,19 +264,6 @@ async def itscheckintime():
         bc.get_new_stories()
         bc.update_lasttimes()
 
-        alien = otxalien(
-            ALL_VALID,
-            DESCRIPTION_KEYWORDS,
-            DESCRIPTION_KEYWORDS_I,
-            PRODUCT_KEYWORDS,
-            PRODUCT_KEYWORDS_I,
-        )
-        alien.load_lasttimes()
-        alien.get_new_pulse()
-        alien.get_modified_pulse()
-
-        alien.update_lasttimes()
-
         hn = hackernews(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
@@ -287,11 +275,37 @@ async def itscheckintime():
         hn.get_new_stories()
         hn.update_lasttimes()
 
+        vulner = vulners(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        vulner.load_lasttimes()
+        vulner.get_new_stories()
+        vulner.update_lasttimes()
+
+        alien = otxalien(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        alien.load_lasttimes()
+        alien.get_new_pulse()
+        alien.get_modified_pulse()
+        alien.update_lasttimes()
+
         for story in bc.new_stories:
             stories_to_pub.append(story)
 
         for hnews in hn.new_news:
             stories_to_pub.append(hnews)
+
+        for story in vulner.new_stories:
+            stories_to_pub.append(story)
 
         for pulse in alien.new_pulses:
             if pulse["description"]:  # only publish if there is a description
