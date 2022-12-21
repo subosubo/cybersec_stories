@@ -50,6 +50,8 @@ logger.addHandler(f_handler)
 
 STORY_JSON_PATH = join(pathlib.Path(
     __file__).parent.absolute(), "output/stories.json")
+BLOG_JSON_PATH = join(pathlib.Path(
+    __file__).parent.absolute(), "output/blog.json")
 PULSE_JSON_PATH = join(pathlib.Path(
     __file__).parent.absolute(), "output/pulse.json")
 MOD_PULSE_JSON_PATH = join(
@@ -65,13 +67,15 @@ def load_stories_to_publish():
             listmodpulse = json.load(fp)
         with open(PULSE_JSON_PATH) as fp:
             listpulse = json.load(fp)
+        with open(BLOG_JSON_PATH) as fp:
+            listvulnersblog = json.load(fp)
         fp.close()
-        return liststories, listmodpulse, listpulse
+        return liststories, listmodpulse, listpulse, listvulnersblog
     except Exception as e:
         logger.error(f"ERROR_LOAD:{e}")
 
 
-def store_stories_for_later(liststories, listmodpulse, listpulse):
+def store_stories_for_later(liststories, listmodpulse, listpulse, listvulnersblog):
     try:
         with open(STORY_JSON_PATH, "w") as json_file:
             json.dump(liststories, json_file, indent=4, separators=(",", ": "))
@@ -80,6 +84,9 @@ def store_stories_for_later(liststories, listmodpulse, listpulse):
                       indent=4, separators=(",", ": "))
         with open(PULSE_JSON_PATH, "w") as json_file:
             json.dump(listpulse, json_file, indent=4, separators=(",", ": "))
+        with open(BLOG_JSON_PATH, "w") as json_file:
+            json.dump(listvulnersblog, json_file,
+                      indent=4, separators=(",", ": "))
         json_file.close()
     except Exception as e:
         logger.error(f"ERROR_STORE:{e}")
@@ -121,7 +128,6 @@ def load_keywords():
 #################### SEND MESSAGES #########################
 
 def generate_new_story_message(new_story) -> Embed:
-    # Generate new CVE message for sending to discord
     embed = Embed(
         title=f"🔈 *{new_story['title']}*",
         description=new_story["summary"]
@@ -139,8 +145,25 @@ def generate_new_story_message(new_story) -> Embed:
     return embed
 
 
-def generate_new_pulse_message(new_pulse) -> Embed:
+def generate_new_blog_message(new_blog) -> Embed:
+    embed = Embed(
+        title=f"🔈 *{new_blog['title']}*",
+        description=new_blog["summary"]
+        if len(new_blog["summary"]) < 500
+        else new_blog["summary"][:500] + "...",
+        timestamp=datetime.datetime.now(),
+        color=Color.light_gray(),
+    )
+    embed.add_field(
+        name=f"📅  *Published*", value=f"{new_blog['published']}", inline=True
+    )
+    embed.add_field(
+        name=f"More Information", value=f"{new_blog['link']}", inline=False
+    )
+    return embed
 
+
+def generate_new_pulse_message(new_pulse) -> Embed:
     nl = "\n"
     embed = Embed(
         title=f"🔈 *{new_pulse['name']}*",
@@ -174,7 +197,6 @@ def generate_new_pulse_message(new_pulse) -> Embed:
 
 
 def generate_mod_pulse_message(mod_pulse) -> Embed:
-    # Generate new CVE message for sending to discord
     nl = "\n"
     embed = Embed(
         title=f"🔈 *Updated: {mod_pulse['name']}*",
@@ -217,6 +239,18 @@ async def send_discord_message(message: Embed):
     await sendtowebhook(webhookurl=discord_webhok_url, content=message)
 
 
+async def send_discord_message_blog(message: Embed):
+    """Send a message to the discord channel webhook"""
+
+    discord_webhok_url = os.getenv("DISCORD_WEBHOOK_BLOG_URL")
+
+    if not discord_webhok_url:
+        print("DISCORD_WEBHOOK_BLOG_URL wasn't configured in the secrets!")
+        return
+
+    await sendtowebhook(webhookurl=discord_webhok_url, content=message)
+
+
 async def sendtowebhook(webhookurl: str, content: Embed):
     async with aiohttp.ClientSession() as session:
         try:
@@ -237,7 +271,7 @@ async def itscheckintime():
 
     try:
 
-        stories_to_pub, mod_pulse_to_pub, pulse_to_pub = load_stories_to_publish()
+        stories_to_pub, mod_pulse_to_pub, pulse_to_pub, vulners_blog_to_pub = load_stories_to_publish()
 
         (
             ALL_VALID,
@@ -259,27 +293,16 @@ async def itscheckintime():
         bc.get_new_stories()
         bc.update_lasttimes()
 
-        hn = hackernews(
+        thn = hackernews(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        hn.load_lasttimes()
-        hn.get_new_stories()
-        hn.update_lasttimes()
-
-        vulner = vulners(
-            ALL_VALID,
-            DESCRIPTION_KEYWORDS,
-            DESCRIPTION_KEYWORDS_I,
-            PRODUCT_KEYWORDS,
-            PRODUCT_KEYWORDS_I,
-        )
-        vulner.load_lasttimes()
-        vulner.get_new_stories()
-        vulner.update_lasttimes()
+        thn.load_lasttimes()
+        thn.get_new_stories()
+        thn.update_lasttimes()
 
         alien = otxalien(
             ALL_VALID,
@@ -293,14 +316,26 @@ async def itscheckintime():
         alien.get_modified_pulse()
         alien.update_lasttimes()
 
+        # vulner blog
+        vulner = vulners(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+        )
+        vulner.load_lasttimes()
+        vulner.get_new_vulners()
+        vulner.update_lasttimes()
+
         for story in bc.new_stories:
             stories_to_pub.append(story)
 
-        for hnews in hn.new_news:
-            stories_to_pub.append(hnews)
+        for hnew in thn.new_news:
+            stories_to_pub.append(hnew)
 
-        for story in vulner.new_stories:
-            stories_to_pub.append(story)
+        for blog in vulner.new_vulners_blog:
+            vulners_blog_to_pub.append(blog)
 
         for pulse in alien.new_pulses:
             if pulse["description"]:  # only publish if there is a description
@@ -322,10 +357,15 @@ async def itscheckintime():
             pulse_msg = generate_mod_pulse_message(modpulse)
             await send_discord_message(pulse_msg)
 
+        for blog in vulners_blog_to_pub[:max_publish]:
+            blog_msg = generate_new_blog_message(blog)
+            await send_discord_message_blog(blog_msg)
+
         store_stories_for_later(
             stories_to_pub[max_publish:],
             mod_pulse_to_pub[max_publish:],
             pulse_to_pub[max_publish:],
+            vulners_blog_to_pub[max_publish:]
         )
 
     except Exception as e:

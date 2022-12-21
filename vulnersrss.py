@@ -20,7 +20,7 @@ class vulners:
         self.product = product
         self.product_i = product_i
 
-        self.VULNERS_UR = "https://vulners.com/rss.xml"
+        self.VULNERS_BLOG_URL = "https://vulners.com/rss.xml?query=bulletinFamily:blog%20order:published"
         self.PUBLISH_VULNERS_JSON_PATH = join(
             pathlib.Path(__file__).parent.absolute(
             ), "output/vulners_record.json"
@@ -30,8 +30,8 @@ class vulners:
             gmt) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
 
-        self.new_stories = []
-        self.vulners_title = []
+        self.new_vulners_blog = []
+        self.vulners_blog_title = []
 
     ################## LOAD CONFIGURATIONS ####################
 
@@ -64,28 +64,28 @@ class vulners:
         except Exception as e:
             self.logger.error(f"VULNERS-ERROR-2: {e}")
 
-    ################## SEARCH STORIES FROM VULNERS ####################
+    ################## SEARCH BLOG FROM VULNERS ####################
 
-    def get_stories(self, link):
+    def get_vulners_list(self, link):
         newsfeed = feedparser.parse(link)
         return newsfeed
 
-    def filter_stories(self, stories, last_published: datetime.datetime):
-        filtered_stories = []
+    def filter_vulners_list(self, vulners_list, last_published: datetime.datetime):
+        filtered_vulners = []
         new_last_time = last_published
-        for story in stories:
-            story_time = datetime.datetime.strptime(
-                story["published"], self.VULNERS_TIME_FORMAT
+        for vulner_obj in vulners_list:
+            vulner_obj_time = datetime.datetime.strptime(
+                vulner_obj["published"], self.VULNERS_TIME_FORMAT
             )
-            if story_time > last_published:
-                if self.valid or self.is_summ_keyword_present(story["description"]):
+            if vulner_obj_time > last_published:
+                if self.valid or self.is_summ_keyword_present(vulner_obj["description"]):
 
-                    filtered_stories.append(story)
+                    filtered_vulners.append(vulner_obj)
 
-            if story_time > new_last_time:
-                new_last_time = story_time
+            if vulner_obj_time > new_last_time:
+                new_last_time = vulner_obj_time
 
-        return filtered_stories, new_last_time
+        return filtered_vulners, new_last_time
 
     def is_summ_keyword_present(self, summary: str):
         # Given the summary check if any keyword is present
@@ -93,19 +93,19 @@ class vulners:
             w.lower() in summary.lower() for w in self.keywords_i
         )  # for each of the word in description keyword config, check if it exists in summary.
 
-    def get_new_stories(self):
-        stories = self.get_stories(self.VULNERS_UR)
-        self.new_stories, self.LAST_PUBLISHED = self.filter_stories(
-            stories["entries"], self.LAST_PUBLISHED
+    def get_new_vulners(self):
+        vulner_obj = self.get_vulners_list(self.VULNERS_BLOG_URL)
+        self.new_vulners_blog, self.LAST_PUBLISHED = self.filter_vulners_list(
+            vulner_obj["entries"], self.LAST_PUBLISHED
         )
-        self.remove_html_from_stories()
+        self.remove_html_from_vulners()
 
-        self.vulners_title = [new_story["title"]
-                              for new_story in self.new_stories]
-        print(f"Vulners Stories: {self.vulners_title}")
-        self.logger.info(f"Vulners Stories: {self.vulners_title}")
+        self.vulners_blog_title = [new_blog["title"]
+                                   for new_blog in self.new_vulners_blog]
+        print(f"Vulners Blog: {self.vulners_blog_title}")
+        self.logger.info(f"Vulners Blog: {self.vulners_blog_title}")
 
-    def remove_html_from_stories(self):
-        for story in self.new_stories:
-            story['description'] = BeautifulSoup(
-                story['description'], "lxml").get_text()
+    def remove_html_from_vulners(self):
+        for blog in self.new_vulners_blog:
+            blog['description'] = BeautifulSoup(
+                blog['description'], "lxml").get_text()
