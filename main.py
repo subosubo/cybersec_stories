@@ -120,7 +120,6 @@ def load_keywords():
 
 #################### SEND MESSAGES #########################
 
-
 def generate_new_story_message(new_story) -> Embed:
     # Generate new CVE message for sending to discord
     embed = Embed(

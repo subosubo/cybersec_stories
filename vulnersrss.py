@@ -3,10 +3,11 @@ import json
 import logging
 import pathlib
 from os.path import join
+from bs4 import BeautifulSoup
+
 
 import feedparser
 import pytz
-from discord import Color, Embed
 
 gmt = pytz.timezone('GMT')
 
@@ -26,7 +27,7 @@ class vulners:
         )
         self.VULNERS_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
         self.LAST_PUBLISHED = datetime.datetime.now(
-            utc) - datetime.timedelta(days=1)
+            gmt) - datetime.timedelta(days=1)
         self.logger = logging.getLogger(__name__)
 
         self.new_stories = []
@@ -97,8 +98,14 @@ class vulners:
         self.new_stories, self.LAST_PUBLISHED = self.filter_stories(
             stories["entries"], self.LAST_PUBLISHED
         )
+        self.remove_html_from_stories()
 
         self.vulners_title = [new_story["title"]
                               for new_story in self.new_stories]
         print(f"Vulners Stories: {self.vulners_title}")
         self.logger.info(f"Vulners Stories: {self.vulners_title}")
+
+    def remove_html_from_stories(self):
+        for story in self.new_stories:
+            story['description'] = BeautifulSoup(
+                story['description'], "lxml").get_text()
