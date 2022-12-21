@@ -50,14 +50,14 @@ class vulners:
             self.logger.error(f"VULNERS-ERROR-1: {e}")
 
     def update_lasttimes(self):
+
         # Save lasttimes in json file
         try:
             with open(self.PUBLISH_VULNERS_JSON_PATH, "w") as json_file:
                 json.dump(
                     {
-                        "LAST_PUBLISHED": self.LAST_PUBLISHED.strftime(
-                            self.VULNERS_TIME_FORMAT
-                        ),
+                        "LAST_PUBLISHED": self.LAST_PUBLISHED.replace(
+                            tzinfo=gmt).strftime(self.VULNERS_TIME_FORMAT)
                     },
                     json_file,
                 )
