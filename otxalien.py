@@ -137,6 +137,9 @@ class otxalien:
             stories["results"], self.ALIEN_CREATED, time_type.created
         )
 
+        # convert to set to remove duplicates and back to list type
+        self.new_pulses = list(set(self.new_pulses))
+
         self.pulse_title = [new_pulse["name"] for new_pulse in self.new_pulses]
         print(f"OTX Alien pulses: {self.pulse_title}")
         self.logger.info(f"OTX Alien pulses: {self.pulse_title}")
