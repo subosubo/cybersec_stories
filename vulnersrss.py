@@ -4,7 +4,7 @@ import logging
 import pathlib
 from os.path import join
 from bs4 import BeautifulSoup
-
+import requests
 
 import feedparser
 import pytz
@@ -99,6 +99,7 @@ class vulners:
             vulner_obj["entries"], self.LAST_PUBLISHED
         )
         self.remove_html_from_vulners()
+        self.replace_links()
 
         self.vulners_blog_title = [new_blog["title"]
                                    for new_blog in self.new_vulners_blog]
@@ -109,3 +110,11 @@ class vulners:
         for blog in self.new_vulners_blog:
             blog['description'] = BeautifulSoup(
                 blog['description'], "lxml").get_text()
+
+    def replace_links(self):
+        for blog in self.new_vulners_blog:
+            response = requests.get(blog['link'])
+            soup = BeautifulSoup(response.text, 'lxml')
+            element = soup.find('div', id='jsonbody').get_text()
+            dict = json.loads(element)
+            blog['link'] = dict['href']
