@@ -116,5 +116,5 @@ class vulners:
             response = requests.get(blog['link'])
             soup = BeautifulSoup(response.text, 'lxml')
             element = soup.find('div', id='jsonbody').get_text()
-            dict = json.loads(element)
-            blog['link'] = dict['href']
+            json_dict = json.loads(element)
+            blog['link'] = json_dict['href']
