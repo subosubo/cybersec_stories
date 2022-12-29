@@ -152,7 +152,7 @@ def generate_new_blog_message(new_blog) -> Embed:
         if len(new_blog["summary"]) < 500
         else new_blog["summary"][:500] + "...",
         timestamp=datetime.datetime.now(),
-        color=Color.light_gray(),
+        color=Color.brand_green(),
     )
     embed.add_field(
         name=f"📅  *Published*", value=f"{new_blog['published']}", inline=True
@@ -171,7 +171,7 @@ def generate_new_pulse_message(new_pulse) -> Embed:
         if len(new_pulse["description"]) < 500
         else new_pulse["description"][:500] + "...",
         timestamp=datetime.datetime.now(),
-        color=Color.light_gray(),
+        color=Color.dark_orange(),
     )
     embed.add_field(
         name=f"📅  *Published*", value=f"{new_pulse['created']}", inline=True
@@ -234,18 +234,6 @@ async def send_discord_message(message: Embed):
 
     if not discord_webhok_url:
         print("DISCORD_WEBHOOK_URL wasn't configured in the secrets!")
-        return
-
-    await sendtowebhook(webhookurl=discord_webhok_url, content=message)
-
-
-async def send_discord_message_blog(message: Embed):
-    """Send a message to the discord channel webhook"""
-
-    discord_webhok_url = os.getenv("DISCORD_WEBHOOK_BLOG_URL")
-
-    if not discord_webhok_url:
-        print("DISCORD_WEBHOOK_BLOG_URL wasn't configured in the secrets!")
         return
 
     await sendtowebhook(webhookurl=discord_webhok_url, content=message)
@@ -355,7 +343,7 @@ async def itscheckintime():
 
         for blog in vulners_blog_to_pub[:max_publish]:
             blog_msg = generate_new_blog_message(blog)
-            await send_discord_message_blog(blog_msg)
+            await send_discord_message(blog_msg)
 
         bc.update_lasttimes()
         thn.update_lasttimes()
