@@ -138,7 +138,7 @@ class otxalien:
         )
 
         # convert to set to remove duplicates and back to list type
-        self.remove_duplicate()
+        # self.remove_duplicate()
 
         self.pulse_title = [new_pulse["name"] for new_pulse in self.new_pulses]
         print(f"OTX Alien pulses: {self.pulse_title}")
@@ -162,12 +162,7 @@ class otxalien:
         self.logger.info(f"OTX Alien mod pulses: {self.mod_pulse_title}")
 
     def remove_duplicate(self):
-        seen = set()
-        new_list = []
-        for pulse in self.new_pulses:
-            tup = tuple(pulse.items())
-            if tup not in seen:
-                seen.add(pulse)
-                new_list.append(pulse)
+        new_list = [i for n, i in enumerate(
+            self.new_pulses) if i not in self.new_pulses[n + 1:]]
 
         self.new_pulses = new_list
