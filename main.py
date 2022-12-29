@@ -291,7 +291,6 @@ async def itscheckintime():
         )
         bc.load_lasttimes()
         bc.get_new_stories()
-        bc.update_lasttimes()
 
         thn = hackernews(
             ALL_VALID,
@@ -302,7 +301,6 @@ async def itscheckintime():
         )
         thn.load_lasttimes()
         thn.get_new_stories()
-        thn.update_lasttimes()
 
         alien = otxalien(
             ALL_VALID,
@@ -314,7 +312,6 @@ async def itscheckintime():
         alien.load_lasttimes()
         alien.get_new_pulse()
         alien.get_modified_pulse()
-        alien.update_lasttimes()
 
         # vulner blog
         vulner = vulners(
@@ -326,7 +323,6 @@ async def itscheckintime():
         )
         vulner.load_lasttimes()
         vulner.get_new_vulners()
-        vulner.update_lasttimes()
 
         for story in bc.new_stories:
             stories_to_pub.append(story)
@@ -360,6 +356,11 @@ async def itscheckintime():
         for blog in vulners_blog_to_pub[:max_publish]:
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message_blog(blog_msg)
+
+        bc.update_lasttimes()
+        thn.update_lasttimes()
+        alien.update_lasttimes()
+        vulner.update_lasttimes()
 
         store_stories_for_later(
             stories_to_pub[max_publish:],
