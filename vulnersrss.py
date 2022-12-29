@@ -98,7 +98,9 @@ class vulners:
         self.new_vulners_blog, self.LAST_PUBLISHED = self.filter_vulners_list(
             vulner_obj["entries"], self.LAST_PUBLISHED
         )
+        # removes html tags from description
         self.remove_html_from_vulners()
+        # replaces vulners url from references with actual reference url
         self.replace_links()
 
         self.vulners_blog_title = [new_blog["title"]
@@ -109,7 +111,7 @@ class vulners:
     def remove_html_from_vulners(self):
         for blog in self.new_vulners_blog:
             blog['description'] = BeautifulSoup(
-                blog['description'], "lxml").get_text()
+                blog['description'], "html.parser").get_text()
 
     def replace_links(self):
         for blog in self.new_vulners_blog:
