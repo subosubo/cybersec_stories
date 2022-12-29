@@ -138,7 +138,8 @@ class otxalien:
         )
 
         # convert to set to remove duplicates and back to list type
-        self.new_pulses = list(set(self.new_pulses))
+        self.new_pulses = [dict(t) for t in {tuple(
+            pulse.items()) for pulse in self.new_pulses}]
 
         self.pulse_title = [new_pulse["name"] for new_pulse in self.new_pulses]
         print(f"OTX Alien pulses: {self.pulse_title}")
