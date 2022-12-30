@@ -5,6 +5,7 @@ import pathlib
 from os.path import join
 from bs4 import BeautifulSoup
 import requests
+import html
 
 import feedparser
 import pytz
@@ -110,8 +111,10 @@ class vulners:
 
     def remove_html_from_vulners(self):
         for blog in self.new_vulners_blog:
-            blog['description'] = BeautifulSoup(
-                blog['description'], "html.parser").get_text()
+            # html.unescape - decode HTML entiries to text
+            # beautifulsoup get_text removes html tags
+            blog['description'] = html.unescape(BeautifulSoup(
+                blog['description'], 'lxml').get_text())
 
     def replace_links(self):
         for blog in self.new_vulners_blog:
