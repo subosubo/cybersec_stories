@@ -75,6 +75,13 @@ def load_stories_to_publish():
         logger.error(f"ERROR_LOAD:{e}")
 
 
+def remove_duplicate(orig_list):
+    new_list = [i for n, i in enumerate(
+        orig_list) if i not in orig_list[n + 1:]]
+
+    return new_list
+
+
 def store_stories_for_later(liststories, listmodpulse, listpulse, listvulnersblog):
     try:
         with open(STORY_JSON_PATH, "w") as json_file:
@@ -328,6 +335,11 @@ async def itscheckintime():
         for mod_pulse in alien.mod_pulses:
             if mod_pulse["description"]:
                 mod_pulse_to_pub.append(mod_pulse)
+
+        stories_to_pub = remove_duplicate(stories_to_pub)
+        vulners_blog_to_pub = remove_duplicate(vulners_blog_to_pub)
+        pulse_to_pub = remove_duplicate(pulse_to_pub)
+        mod_pulse_to_pub = remove_duplicate(mod_pulse_to_pub)
 
         for story in stories_to_pub[:max_publish]:
             story_msg = generate_new_story_message(story)

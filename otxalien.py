@@ -160,11 +160,3 @@ class otxalien:
         self.mod_pulse_title = [mpulse["name"] for mpulse in self.mod_pulses]
         print(f"OTX Alien mod pulses: {self.mod_pulse_title}")
         self.logger.info(f"OTX Alien mod pulses: {self.mod_pulse_title}")
-
-    def remove_duplicate(self):
-        # https://www.geeksforgeeks.org/python-removing-duplicate-dicts-in-list/
-        # list comprehension
-        new_list = [i for n, i in enumerate(
-            self.new_pulses) if i not in self.new_pulses[n + 1:]]
-
-        self.new_pulses = new_list
