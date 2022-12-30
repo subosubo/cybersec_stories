@@ -329,11 +329,13 @@ async def itscheckintime():
             vulners_blog_to_pub.append(blog)
 
         for pulse in alien.new_pulses:
-            if pulse["description"]:  # only publish if there is a description
+            # only publish if there is a description and reference
+            if pulse["description"] and pulse['references']:
                 pulse_to_pub.append(pulse)
 
         for mod_pulse in alien.mod_pulses:
-            if mod_pulse["description"]:
+            # only publish if there is a description and reference
+            if mod_pulse["description"] and pulse['references']:
                 mod_pulse_to_pub.append(mod_pulse)
 
         stories_to_pub = remove_duplicate(stories_to_pub)
