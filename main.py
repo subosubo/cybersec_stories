@@ -335,7 +335,7 @@ async def itscheckintime():
 
         for mod_pulse in alien.mod_pulses:
             # only publish if there is a description and reference
-            if mod_pulse["description"] and pulse['references']:
+            if mod_pulse["description"] and mod_pulse['references']:
                 mod_pulse_to_pub.append(mod_pulse)
 
         stories_to_pub = remove_duplicate(stories_to_pub)
