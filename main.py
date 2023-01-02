@@ -22,7 +22,7 @@ import json
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
-max_publish = 5
+max_publish = 2
 
 #################### LOG CONFIG #########################
 
@@ -381,7 +381,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        itscheckintime, "cron", day_of_week="mon-fri", hour="8-18", minute="*/5"
+        itscheckintime, "cron", day_of_week="mon-fri", hour="8-18", minute="*/6"
     )
     scheduler.start()
 
