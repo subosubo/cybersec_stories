@@ -29,8 +29,8 @@ class vulners:
         self.VULNERS_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
         self.LAST_PUBLISHED = datetime.datetime.now(
             gmt) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger(__name__)
-
+        self.logger = logging.getLogger("__main__")
+        self.logger.setLevel(logging.INFO)
         self.new_vulners_blog = []
         self.vulners_blog_title = []
 
@@ -106,7 +106,6 @@ class vulners:
 
         self.vulners_blog_title = [new_blog["title"]
                                    for new_blog in self.new_vulners_blog]
-        print(f"Vulners Blog: {self.vulners_blog_title}")
         self.logger.info(f"Vulners Blog: {self.vulners_blog_title}")
 
     def remove_html_from_vulners(self):

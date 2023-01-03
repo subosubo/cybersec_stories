@@ -27,8 +27,8 @@ class bleepingcom:
         self.BC_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger(__name__)
-
+        self.logger = logging.getLogger("__main__")
+        self.logger.setLevel(logging.INFO)
         self.new_stories = []
         self.bc_title = []
 
@@ -99,5 +99,4 @@ class bleepingcom:
         )
 
         self.bc_title = [new_story["title"] for new_story in self.new_stories]
-        print(f"Bleeping Computer Stories: {self.bc_title}")
         self.logger.info(f"Bleeping Computer Stories: {self.bc_title}")

@@ -27,8 +27,8 @@ class hackernews:
         self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger(__name__)
-
+        self.logger = logging.getLogger("__main__")
+        self.logger.setLevel(logging.INFO)
         self.new_news = []
         self.hn_title = []
 
@@ -99,5 +99,4 @@ class hackernews:
         )
 
         self.hn_title = [news["title"] for news in self.new_news]
-        print(f"The Hacking News: {self.hn_title}")
         self.logger.info(f"The Hacking News: {self.hn_title}")

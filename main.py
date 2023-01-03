@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from discord import Color
 import datetime
 from time import sleep
-
+from pathlib import Path
 import aiohttp
 import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -26,25 +26,39 @@ max_publish = 2
 
 #################### LOG CONFIG #########################
 
-# Create a custom logger
+# create logger
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-# Create handlers
-c_handler = logging.StreamHandler()
-f_handler = logging.FileHandler("cybersec_stories.log", "a", "utf-8")
-c_handler.setLevel(logging.WARNING)
-f_handler.setLevel(logging.ERROR)
 
-# Create formatters and add it to handlers
-c_format = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-c_handler.setFormatter(c_format)
-f_handler.setFormatter(f_format)
+# create console handler and set level to debug
+consolelog = logging.StreamHandler()
+consolelog.setLevel(logging.INFO)
 
-# Add handlers to the logger
-logger.addHandler(c_handler)
-logger.addHandler(f_handler)
+# create formatter
+formatter = logging.Formatter(
+    '%(asctime)s - %(levelname)s - %(message)s')
+
+# add formatter to ch
+consolelog.setFormatter(formatter)
+
+# create file handler and set level to debug
+log_dir = Path(__file__).parent.absolute()
+log_dir.mkdir(parents=True, exist_ok=True)
+filelog = logging.FileHandler(
+    log_dir / 'cybersec_stories_logfile.log', "a", "utf-8")
+filelog.setLevel(logging.DEBUG)
+
+# create formatter
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# add formatter to fh
+filelog.setFormatter(formatter)
+
+# add ch and fh to logger
+logger.addHandler(consolelog)
+logger.addHandler(filelog)
 
 #################### LOAD STORIES FROM JSON #########################
 
@@ -111,7 +125,7 @@ def load_keywords():
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
             keywords_config = yaml.safe_load(yaml_file)
-            print(f"Loaded keywords: {keywords_config}")
+            logger.info(f"Loaded keywords: {keywords_config}")
             ALL_VALID = keywords_config["ALL_VALID"]
             DESCRIPTION_KEYWORDS_I = keywords_config["DESCRIPTION_KEYWORDS_I"]
             DESCRIPTION_KEYWORDS = keywords_config["DESCRIPTION_KEYWORDS"]
@@ -240,7 +254,8 @@ async def send_discord_message(message: Embed):
     discord_webhok_url = os.getenv("DISCORD_WEBHOOK_URL")
 
     if not discord_webhok_url:
-        print("DISCORD_WEBHOOK_URL wasn't configured in the secrets!")
+        logger.error(
+            "DISCORD_WEBHOOK_URL wasn't configured in the secrets!")
         return
 
     await sendtowebhook(webhookurl=discord_webhok_url, content=message)
@@ -319,24 +334,11 @@ async def itscheckintime():
         vulner.load_lasttimes()
         vulner.get_new_vulners()
 
-        for story in bc.new_stories:
-            stories_to_pub.append(story)
-
-        for hnew in thn.new_news:
-            stories_to_pub.append(hnew)
-
-        for blog in vulner.new_vulners_blog:
-            vulners_blog_to_pub.append(blog)
-
-        for pulse in alien.new_pulses:
-            # only publish if there is a description and reference
-            if pulse["description"] and pulse['references']:
-                pulse_to_pub.append(pulse)
-
-        for mod_pulse in alien.mod_pulses:
-            # only publish if there is a description and reference
-            if mod_pulse["description"] and mod_pulse['references']:
-                mod_pulse_to_pub.append(mod_pulse)
+        stories_to_pub.extend(list(reversed(bc.new_stories)))
+        stories_to_pub.extend(list(reversed(thn.new_news)))
+        vulners_blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
+        pulse_to_pub.extend(list(reversed(alien.new_pulses)))
+        mod_pulse_to_pub.extend(list(reversed(alien.mod_pulses)))
 
         stories_to_pub = remove_duplicate(stories_to_pub)
         vulners_blog_to_pub = remove_duplicate(vulners_blog_to_pub)
@@ -385,7 +387,8 @@ if __name__ == "__main__":
     )
     scheduler.start()
 
-    print("Press Ctrl+{0} to exit".format("Break" if os.name == "nt" else "C"))
+    logger.info(
+        "Press Ctrl+{0} to exit".format("Break" if os.name == "nt" else "C"))
 
     # Execution will block here until Ctrl+C (Ctrl+Break on Windows) is pressed.
     try:

@@ -36,8 +36,8 @@ class otxalien:
             utc) - datetime.timedelta(days=1)
         self.ALIEN_CREATED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
-        self.logger = logging.getLogger(__name__)
-
+        self.logger = logging.getLogger("__main__")
+        self.logger.setLevel(logging.INFO)
         self.new_pulses = []
         self.pulse_title = []
         self.mod_pulses = []
@@ -109,6 +109,8 @@ class otxalien:
         new_last_time = last_create
 
         for story in stories:
+            if story["description"] and story['references']:
+                continue
 
             story_time = datetime.datetime.strptime(
                 story[tt_filter.value], self.ALIEN_TIME_FORMAT
@@ -137,11 +139,7 @@ class otxalien:
             stories["results"], self.ALIEN_CREATED, time_type.created
         )
 
-        # convert to set to remove duplicates and back to list type
-        # self.remove_duplicate()
-
         self.pulse_title = [new_pulse["name"] for new_pulse in self.new_pulses]
-        print(f"OTX Alien pulses: {self.pulse_title}")
         self.logger.info(f"OTX Alien pulses: {self.pulse_title}")
 
     def get_modified_pulse(self):
@@ -158,5 +156,4 @@ class otxalien:
         ]
 
         self.mod_pulse_title = [mpulse["name"] for mpulse in self.mod_pulses]
-        print(f"OTX Alien mod pulses: {self.mod_pulse_title}")
         self.logger.info(f"OTX Alien mod pulses: {self.mod_pulse_title}")
