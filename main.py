@@ -211,7 +211,7 @@ def generate_mod_pulse_message(mod_pulse) -> Embed:
         if len(mod_pulse["description"]) < 500
         else mod_pulse["description"][:500] + "...",
         timestamp=datetime.datetime.now(),
-        color=Color.light_gray(),
+        color=Color.dark_orange(),
     )
     embed.add_field(
         name=f"📅  *Published*", value=f"{mod_pulse['created']}", inline=True
