@@ -30,7 +30,7 @@ class vulners:
         self.LAST_PUBLISHED = datetime.datetime.now(
             gmt) - datetime.timedelta(days=1)
         self.logger = logging.getLogger("__main__")
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         self.new_vulners_blog = []
         self.vulners_blog_title = []
 
