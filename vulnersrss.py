@@ -117,10 +117,8 @@ class vulners:
 
     def replace_links(self):
         for blog in self.new_vulners_blog:
-            self.logger.debug(blog['link'])
             response = requests.get(blog['link'])
             soup = BeautifulSoup(response.text, 'lxml')
             element = soup.find('div', id='jsonbody').get_text()
             json_dict = json.loads(element)
             blog['link'] = json_dict['href']
-            self.logger.debug(blog['link'])

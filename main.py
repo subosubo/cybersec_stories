@@ -358,6 +358,7 @@ async def itscheckintime():
             await send_discord_message(pulse_msg)
 
         for blog in vulners_blog_to_pub[:max_publish]:
+            logger.debug(blog)
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message(blog_msg)
 
