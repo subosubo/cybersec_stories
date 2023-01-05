@@ -28,7 +28,7 @@ max_publish = 2
 
 # create logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 # create console handler and set level to debug
