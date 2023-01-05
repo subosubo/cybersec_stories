@@ -346,19 +346,22 @@ async def itscheckintime():
         mod_pulse_to_pub = remove_duplicate(mod_pulse_to_pub)
 
         for story in stories_to_pub[:max_publish]:
+            logger.debug(f"s-{story}")
             story_msg = generate_new_story_message(story)
             await send_discord_message(story_msg)
 
         for pulse in pulse_to_pub[:max_publish]:
+            logger.debug(f"p-{pulse}")
             pulse_msg = generate_new_pulse_message(pulse)
             await send_discord_message(pulse_msg)
 
         for modpulse in mod_pulse_to_pub[:max_publish]:
+            logger.debug(f"mp-{modpulse}")
             pulse_msg = generate_mod_pulse_message(modpulse)
             await send_discord_message(pulse_msg)
 
         for blog in vulners_blog_to_pub[:max_publish]:
-            logger.debug(blog)
+            logger.debug(f"b-{blog}")
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message(blog_msg)
 
