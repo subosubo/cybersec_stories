@@ -102,28 +102,28 @@ class otxalien:
         return r.json()
 
     def filter_pulse(
-        self, stories, last_create: datetime.datetime, tt_filter: time_type
+        self, pulses, last_create: datetime.datetime, tt_filter: time_type
     ):
 
-        filtered_stories = []
+        filtered_pulses = []
         new_last_time = last_create
 
-        for story in stories:
-            if story["description"] and story['references']:
+        for pulse in pulses:
+            if not (pulse["description"] and pulse['references']):
                 continue
 
-            story_time = datetime.datetime.strptime(
-                story[tt_filter.value], self.ALIEN_TIME_FORMAT
+            pulse_time = datetime.datetime.strptime(
+                pulse[tt_filter.value], self.ALIEN_TIME_FORMAT
             )
-            if story_time > last_create:
-                if self.valid or self.is_summ_keyword_present(story["description"]):
+            if pulse_time > last_create:
+                if self.valid or self.is_summ_keyword_present(pulse["description"]):
 
-                    filtered_stories.append(story)
+                    filtered_pulses.append(pulse)
 
-            if story_time > new_last_time:
-                new_last_time = story_time
+            if pulse_time > new_last_time:
+                new_last_time = pulse_time
 
-        return filtered_stories, new_last_time
+        return filtered_pulses, new_last_time
 
     def is_summ_keyword_present(self, summary: str):
         # Given the summary check if any keyword is present
