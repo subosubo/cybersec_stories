@@ -28,7 +28,7 @@ class bleepingcom:
         self.LAST_PUBLISHED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger("__main__")
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         self.new_stories = []
         self.bc_title = []
 

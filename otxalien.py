@@ -37,7 +37,7 @@ class otxalien:
         self.ALIEN_CREATED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger("__main__")
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         self.new_pulses = []
         self.pulse_title = []
         self.mod_pulses = []
