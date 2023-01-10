@@ -17,6 +17,7 @@ from vulnersrss import vulners
 from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from otxalien import otxalien
+from securityweekrss import securityweek
 import json
 
 dotenv_path = join(dirname(__file__), ".env")
@@ -82,9 +83,9 @@ def load_stories_to_publish():
         with open(PULSE_JSON_PATH) as fp:
             listpulse = json.load(fp)
         with open(BLOG_JSON_PATH) as fp:
-            listvulnersblog = json.load(fp)
+            listblog = json.load(fp)
         fp.close()
-        return liststories, listmodpulse, listpulse, listvulnersblog
+        return liststories, listmodpulse, listpulse, listblog
     except Exception as e:
         logger.error(f"ERROR_LOAD:{e}")
 
@@ -281,7 +282,7 @@ async def itscheckintime():
 
     try:
 
-        stories_to_pub, mod_pulse_to_pub, pulse_to_pub, vulners_blog_to_pub = load_stories_to_publish()
+        stories_to_pub, mod_pulse_to_pub, pulse_to_pub, blog_to_pub = load_stories_to_publish()
 
         (
             ALL_VALID,
@@ -334,14 +335,24 @@ async def itscheckintime():
         vulner.load_lasttimes()
         vulner.get_new_vulners()
 
+        sw = securityweek(ALL_VALID,
+                          DESCRIPTION_KEYWORDS,
+                          DESCRIPTION_KEYWORDS_I,
+                          PRODUCT_KEYWORDS,
+                          PRODUCT_KEYWORDS_I,
+                          )
+        sw.load_lasttimes()
+        sw.get_articles_rss()
+
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
-        vulners_blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
+        blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
+        blog_to_pub.extend(list(reversed(sw.new_SW_blog)))
         pulse_to_pub.extend(list(reversed(alien.new_pulses)))
         mod_pulse_to_pub.extend(list(reversed(alien.mod_pulses)))
 
         stories_to_pub = remove_duplicate(stories_to_pub)
-        vulners_blog_to_pub = remove_duplicate(vulners_blog_to_pub)
+        blog_to_pub = remove_duplicate(blog_to_pub)
         pulse_to_pub = remove_duplicate(pulse_to_pub)
         mod_pulse_to_pub = remove_duplicate(mod_pulse_to_pub)
 
@@ -357,7 +368,7 @@ async def itscheckintime():
             pulse_msg = generate_mod_pulse_message(modpulse)
             await send_discord_message(pulse_msg)
 
-        for blog in vulners_blog_to_pub[:max_publish]:
+        for blog in blog_to_pub[:max_publish]:
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message(blog_msg)
 
@@ -370,7 +381,7 @@ async def itscheckintime():
             stories_to_pub[max_publish:],
             mod_pulse_to_pub[max_publish:],
             pulse_to_pub[max_publish:],
-            vulners_blog_to_pub[max_publish:]
+            blog_to_pub[max_publish:]
         )
 
     except Exception as e:
@@ -383,7 +394,8 @@ async def itscheckintime():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        itscheckintime, "cron", day_of_week="mon-fri", hour="8-18", minute="*/30"
+        # , hour="8-18", minute="*/3"
+        itscheckintime, "cron", day_of_week="mon-sun", hour="0-23", minute="*/3"
     )
     scheduler.start()
 
