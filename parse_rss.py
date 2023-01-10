@@ -10,7 +10,7 @@ import feedparser
 
 class rss_parse:
 
-    def __init__(self, url, title, valid, keywords, keywords_i, product, product_i, TIME_FORMAT):
+    def __init__(self, url, title, valid, keywords, keywords_i, product, product_i, LAST_PUBLISHED, TIME_FORMAT):
         self.TIME_FORMAT = TIME_FORMAT
         self.url = url
         self.title_label = title
@@ -21,6 +21,9 @@ class rss_parse:
         self.product_i = product_i
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
+        self.LAST_PUBLISHED = LAST_PUBLISHED
+
+        self.filtered_list = []
 
     ################## SEARCH  ####################
 

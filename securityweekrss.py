@@ -67,7 +67,8 @@ class securityweek:
 
     def get_articles_rss(self):
         rss = rss_parse(url=self.SW_BLOG_URL, title="Security Week", valid=self.valid, keywords=self.keywords,
-                        keywords_i=self.keywords_i, product=self.product, product_i=self.product_i, TIME_FORMAT=self.SW_TIME_FORMAT)
+                        keywords_i=self.keywords_i, product=self.product, product_i=self.product_i, LAST_PUBLISHED=self.LAST_PUBLISHED, TIME_FORMAT=self.SW_TIME_FORMAT)
         rss.get_new_rss()
         self.new_SW_blog = rss.filtered_list
+        self.LAST_PUBLISHED = rss.LAST_PUBLISHED
         self.SW_blog_title = rss.filted_obj_title
