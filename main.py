@@ -376,6 +376,7 @@ async def itscheckintime():
         thn.update_lasttimes()
         alien.update_lasttimes()
         vulner.update_lasttimes()
+        sw.update_lasttimes()
 
         store_stories_for_later(
             stories_to_pub[max_publish:],
