@@ -6,7 +6,7 @@ import sys
 from os.path import join, dirname
 from dotenv import load_dotenv
 from discord import Color
-import datetime
+from datetime import datetime
 from time import sleep
 from pathlib import Path
 import aiohttp
@@ -24,6 +24,11 @@ dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
 max_publish = 2
+dict_time_format = {"alien_tf": "%Y-%m-%dT%H:%M:%S.%f",
+                    "bc_tf": "%a, %d %b %Y %H:%M:%S %z",
+                    "hn_tf": "%a, %d %b %Y %H:%M:%S %z",
+                    "vulner_tf": "%a, %d %b %Y %H:%M:%S %Z",
+                    "sw_tf": "%a, %d %b %Y %H:%M:%S %z"}
 
 #################### LOG CONFIG #########################
 
@@ -114,14 +119,13 @@ def store_stories_for_later(liststories, listmodpulse, listpulse, listvulnersblo
         logger.error(f"ERROR_STORE:{e}")
 
 
-#################### LOADING #########################
+#################### LOAD CONFIG #########################
 
 
 def load_keywords():
     # Load keywords from config file
-    KEYWORDS_CONFIG_PATH = join(
-        pathlib.Path(__file__).parent.absolute(), "config/config.yaml"
-    )
+    KEYWORDS_CONFIG_PATH = join(pathlib.Path(
+        __file__).parent.absolute(), "config/config.yaml")
     try:
 
         with open(KEYWORDS_CONFIG_PATH, "r") as yaml_file:
@@ -147,7 +151,43 @@ def load_keywords():
         sys.exit(1)
 
 
+def load_lasttimes() -> dict:
+    RECORDS_JSON_PATH = join(pathlib.Path(
+        __file__).parent.absolute(), "output/record.json")
+    try:
+        with open(RECORDS_JSON_PATH, 'r') as json_file:
+            published_time = json.load(json_file)
+            published_time['ALIEN_MODIFIED'] = datetime.strptime(
+                published_time['ALIEN_MODIFIED'], dict_time_format['alien_tf'])
+            published_time['ALIEN_CREATED'] = datetime.strptime(
+                published_time['ALIEN_CREATED'], dict_time_format['alient_tf'])
+            published_time['BC_LAST_PUBLISHED'] = datetime.strptime(
+                published_time['BC_LAST_PUBLISHED'], dict_time_format['bc_tf'])
+            published_time['HN_LAST_PUBLISHED'] = datetime.strptime(
+                published_time['HN_LAST_PUBLISHED'], dict_time_format['hn_tf'])
+            published_time['VULNER_LAST_PUBLISHED'] = datetime.strptime(
+                published_time['VULNER_LAST_PUBLISHED'], dict_time_format['vulner_tf'])
+            published_time['SW_LAST_PUBLISHED'] = datetime.strptime(
+                published_time['SW_LAST_PUBLISHED'], dict_time_format['sw_tf'])
+
+        json_file.close()
+        return published_time
+
+    except Exception as e:
+        logger.error(f"ERROR-1: {e}")
+
+
+def update_lasttimes(new_published_time: dict):
+    RECORDS_JSON_PATH = join(pathlib.Path(
+        __file__).parent.absolute(), "output/record.json")
+    try:
+        with open(RECORDS_JSON_PATH, 'w') as json_file:
+            json.dump(new_published_time, json_file)
+    except Exception as e:
+        logger.error(f"ERROR-2: {e}")
+
 #################### SEND MESSAGES #########################
+
 
 def generate_new_story_message(new_story) -> Embed:
     embed = Embed(
@@ -283,6 +323,7 @@ async def itscheckintime():
     try:
 
         stories_to_pub, mod_pulse_to_pub, pulse_to_pub, blog_to_pub = load_stories_to_publish()
+        dict_pub_time = load_lasttimes()
 
         (
             ALL_VALID,
@@ -300,8 +341,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        bc.load_lasttimes()
-        bc.get_new_stories()
+        bc.LAST_PUBLISHED = dict_pub_time['BC_LAST_PUBLISHED']
+        bc.get_articles_rss(dict_time_format['bc_tf'])
+        dict_pub_time['BC_LAST_PUBLISHED'] = bc.LAST_PUBLISHED
 
         thn = hackernews(
             ALL_VALID,
@@ -310,8 +352,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        thn.load_lasttimes()
+        thn.LAST_PUBLISHED = dict_pub_time['HN_LAST_PUBLISHED']
         thn.get_new_stories()
+        dict_pub_time['HN_LAST_PUBLISHED'] = thn.LAST_PUBLISHED
 
         alien = otxalien(
             ALL_VALID,
@@ -320,9 +363,12 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        alien.load_lasttimes()
+        alien.ALIEN_CREATED = dict_pub_time['ALIEN_CREATED']
+        alien.ALIEN_MODIFIED = dict_pub_time['ALIEN_MODIFIED']
         alien.get_new_pulse()
         alien.get_modified_pulse()
+        dict_pub_time['ALIEN_CREATED'] = alien.ALIEN_CREATED
+        dict_pub_time['ALIEN_MODIFIED'] = alien.ALIEN_MODIFIED
 
         # vulner blog
         vulner = vulners(
@@ -332,8 +378,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        vulner.load_lasttimes()
-        vulner.get_new_vulners()
+        vulner.LAST_PUBLISHED = dict_pub_time['VULNER_LAST_PUBLISHED']
+        vulner.get_articles_rss(dict_time_format['vulner_tf'])
+        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED
 
         sw = securityweek(ALL_VALID,
                           DESCRIPTION_KEYWORDS,
@@ -341,8 +388,9 @@ async def itscheckintime():
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
                           )
-        sw.load_lasttimes()
-        sw.get_articles_rss()
+        sw.LAST_PUBLISHED = dict_pub_time['SW_LAST_PUBLISHED']
+        sw.get_articles_rss(dict_time_format['sw_tf'])
+        dict_pub_time['SW_LAST_PUBLISHED'] = sw.LAST_PUBLISHED
 
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
@@ -372,11 +420,7 @@ async def itscheckintime():
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message(blog_msg)
 
-        bc.update_lasttimes()
-        thn.update_lasttimes()
-        alien.update_lasttimes()
-        vulner.update_lasttimes()
-        sw.update_lasttimes()
+        update_lasttimes(dict_pub_time)
 
         store_stories_for_later(
             stories_to_pub[max_publish:],

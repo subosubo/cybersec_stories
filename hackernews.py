@@ -24,7 +24,7 @@ class hackernews:
             pathlib.Path(__file__).parent.absolute(
             ), "output/hacker_news_record.json"
         )
-        self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
+        # self.HN_TIME_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
         self.LAST_PUBLISHED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
         self.logger = logging.getLogger("__main__")
@@ -34,34 +34,34 @@ class hackernews:
 
     ################## LOAD CONFIGURATIONS ####################
 
-    def load_lasttimes(self):
-        # Load lasttimes from json file
+    # def load_lasttimes(self):
+    #     # Load lasttimes from json file
 
-        try:
-            with open(self.PUBLISH_HN_JSON_PATH, "r") as json_file:
-                published_time = json.load(json_file)
-                self.LAST_PUBLISHED = datetime.datetime.strptime(
-                    published_time["LAST_PUBLISHED"], self.HN_TIME_FORMAT
-                )
+    #     try:
+    #         with open(self.PUBLISH_HN_JSON_PATH, "r") as json_file:
+    #             published_time = json.load(json_file)
+    #             self.LAST_PUBLISHED = datetime.datetime.strptime(
+    #                 published_time["LAST_PUBLISHED"], self.HN_TIME_FORMAT
+    #             )
 
-        # If error, just keep the fault date (today - 1 day)
-        except Exception as e:
-            self.logger.error(f"HN-ERROR-1: {e}")
+    #     # If error, just keep the fault date (today - 1 day)
+    #     except Exception as e:
+    #         self.logger.error(f"HN-ERROR-1: {e}")
 
-    def update_lasttimes(self):
-        # Save lasttimes in json file
-        try:
-            with open(self.PUBLISH_HN_JSON_PATH, "w") as json_file:
-                json.dump(
-                    {
-                        "LAST_PUBLISHED": self.LAST_PUBLISHED.strftime(
-                            self.HN_TIME_FORMAT
-                        ),
-                    },
-                    json_file,
-                )
-        except Exception as e:
-            self.logger.error(f"HN-ERROR-2: {e}")
+    # def update_lasttimes(self):
+    #     # Save lasttimes in json file
+    #     try:
+    #         with open(self.PUBLISH_HN_JSON_PATH, "w") as json_file:
+    #             json.dump(
+    #                 {
+    #                     "LAST_PUBLISHED": self.LAST_PUBLISHED.strftime(
+    #                         self.HN_TIME_FORMAT
+    #                     ),
+    #                 },
+    #                 json_file,
+    #             )
+    #     except Exception as e:
+    #         self.logger.error(f"HN-ERROR-2: {e}")
 
     ################## SEARCH STORIES FROM THE HACKING NEW ####################
 
