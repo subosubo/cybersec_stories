@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import pathlib
 from os.path import join

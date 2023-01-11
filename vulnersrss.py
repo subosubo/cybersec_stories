@@ -1,15 +1,9 @@
 import datetime
-import json
 import logging
 import pathlib
-from os.path import join
-from bs4 import BeautifulSoup
-import requests
-import html
-from parse_rss import rss_parse
-
-import feedparser
 import pytz
+from os.path import join
+from parse_rss import rss_parse
 
 gmt = pytz.timezone('GMT')
 

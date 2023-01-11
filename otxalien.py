@@ -1,14 +1,11 @@
 import datetime
-import json
 import logging
 import os
 import pathlib
-from enum import Enum
-from os.path import join
-
 import pytz
 import requests
-from discord import Color, Embed
+from enum import Enum
+from os.path import join
 
 utc = pytz.UTC
 

@@ -3,14 +3,15 @@ import logging
 import os
 import pathlib
 import sys
+import aiohttp
+import yaml
+import json
 from os.path import join, dirname
 from dotenv import load_dotenv
 from discord import Color
 from datetime import datetime
 from time import sleep
 from pathlib import Path
-import aiohttp
-import yaml
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bleepingcomrss import bleepingcom
 from vulnersrss import vulners
@@ -18,7 +19,7 @@ from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from otxalien import otxalien
 from securityweekrss import securityweek
-import json
+
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)

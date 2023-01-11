@@ -1,12 +1,8 @@
 import datetime
-import json
 import logging
 import pathlib
-from os.path import join
-
-import feedparser
 import pytz
-from discord import Color, Embed
+from os.path import join
 
 from parse_rss import rss_parse
 
