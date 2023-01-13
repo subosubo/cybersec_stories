@@ -354,7 +354,7 @@ async def itscheckintime():
             PRODUCT_KEYWORDS_I,
         )
         thn.LAST_PUBLISHED = dict_pub_time['HN_LAST_PUBLISHED']
-        thn.get_new_stories()
+        thn.get_articles_rss(dict_time_format['hn_tf'])
         dict_pub_time['HN_LAST_PUBLISHED'] = thn.LAST_PUBLISHED
 
         alien = otxalien(

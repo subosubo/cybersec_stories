@@ -4,6 +4,7 @@ import pathlib
 import feedparser
 import pytz
 from os.path import join
+from parse_rss import rss_parse
 
 utc = pytz.UTC
 
@@ -62,38 +63,48 @@ class hackernews:
 
     ################## SEARCH STORIES FROM THE HACKING NEW ####################
 
-    def get_stories(self, link):
-        newsfeed = feedparser.parse(link)
-        return newsfeed
+    # def get_stories(self, link):
+    #     newsfeed = feedparser.parse(link)
+    #     return newsfeed
 
-    def filter_stories(self, stories, last_published: datetime.datetime):
-        filtered_stories = []
-        new_last_time = last_published
-        for story in stories:
-            story_time = datetime.datetime.strptime(
-                story["published"], self.HN_TIME_FORMAT
-            )
-            if story_time > last_published:
-                if self.valid or self.is_summ_keyword_present(story["description"]):
+    # def filter_stories(self, stories, last_published: datetime.datetime):
+    #     filtered_stories = []
+    #     new_last_time = last_published
+    #     for story in stories:
+    #         story_time = datetime.datetime.strptime(
+    #             story["published"], self.HN_TIME_FORMAT
+    #         )
+    #         if story_time > last_published:
+    #             if self.valid or self.is_summ_keyword_present(story["description"]):
 
-                    filtered_stories.append(story)
+    #                 filtered_stories.append(story)
 
-            if story_time > new_last_time:
-                new_last_time = story_time
+    #         if story_time > new_last_time:
+    #             new_last_time = story_time
 
-        return filtered_stories, new_last_time
+    #     return filtered_stories, new_last_time
 
-    def is_summ_keyword_present(self, summary: str):
-        # Given the summary check if any keyword is present
-        return any(w in summary for w in self.keywords) or any(
-            w.lower() in summary.lower() for w in self.keywords_i
-        )  # for each of the word in description keyword config, check if it exists in summary.
+    # def is_summ_keyword_present(self, summary: str):
+    #     # Given the summary check if any keyword is present
+    #     return any(w in summary for w in self.keywords) or any(
+    #         w.lower() in summary.lower() for w in self.keywords_i
+    #     )  # for each of the word in description keyword config, check if it exists in summary.
 
-    def get_new_stories(self):
-        stories = self.get_stories(self.HACKER_NEWS_UR)
-        self.new_news, self.LAST_PUBLISHED = self.filter_stories(
-            stories["entries"], self.LAST_PUBLISHED
-        )
+    # def get_new_stories(self):
+    #     stories = self.get_stories(self.HACKER_NEWS_UR)
+    #     self.new_news, self.LAST_PUBLISHED = self.filter_stories(
+    #         stories["entries"], self.LAST_PUBLISHED
+    #     )
 
-        self.hn_title = [news["title"] for news in self.new_news]
-        self.logger.info(f"The Hacking News: {self.hn_title}")
+    #     self.hn_title = [news["title"] for news in self.new_news]
+    #     self.logger.info(f"The Hacking News: {self.hn_title}")
+
+    ################## GET ARTICLES ####################
+
+    def get_articles_rss(self, time_format):
+        rss = rss_parse(url=self.HACKER_NEWS_UR, title="TheHackingNews", valid=self.valid, keywords=self.keywords,
+                        keywords_i=self.keywords_i, product=self.product, product_i=self.product_i, LAST_PUBLISHED=self.LAST_PUBLISHED, TIME_FORMAT=time_format)
+        rss.get_new_rss()
+        self.new_news = rss.filtered_list
+        self.LAST_PUBLISHED = rss.LAST_PUBLISHED
+        self.hn_title = rss.filted_obj_title
