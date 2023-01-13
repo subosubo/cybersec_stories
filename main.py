@@ -19,6 +19,7 @@ from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from otxalien import otxalien
 from securityweekrss import securityweek
+import pytz
 
 
 dotenv_path = join(dirname(__file__), ".env")
@@ -30,6 +31,8 @@ dict_time_format = {"alien_tf": "%Y-%m-%dT%H:%M:%S.%f",
                     "hn_tf": "%a, %d %b %Y %H:%M:%S %z",
                     "vulner_tf": "%a, %d %b %Y %H:%M:%S %Z",
                     "sw_tf": "%a, %d %b %Y %H:%M:%S %z"}
+
+gmt = pytz.timezone('GMT')
 
 #################### LOG CONFIG #########################
 
@@ -385,7 +388,7 @@ async def itscheckintime():
         )
         vulner.LAST_PUBLISHED = dict_pub_time['VULNER_LAST_PUBLISHED']
         vulner.get_articles_rss(dict_time_format['vulner_tf'])
-        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED.strftime(
+        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED.replace(tzinfo=gmt).strftime(
             dict_time_format['vulner_tf'])
 
         sw = securityweek(ALL_VALID,
