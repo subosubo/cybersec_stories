@@ -450,7 +450,7 @@ if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
         # , hour="8-18", minute="*/3"
-        itscheckintime, "cron", day_of_week="mon-sun", hour="0-23", minute="*/3"
+        itscheckintime, "cron", day_of_week="mon-sun", hour="8-18", minute="*/30"
     )
     scheduler.start()
 
