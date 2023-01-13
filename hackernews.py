@@ -1,7 +1,6 @@
 import datetime
 import logging
 import pathlib
-import feedparser
 import pytz
 from os.path import join
 from parse_rss import rss_parse
