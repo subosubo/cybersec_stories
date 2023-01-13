@@ -344,7 +344,8 @@ async def itscheckintime():
         )
         bc.LAST_PUBLISHED = dict_pub_time['BC_LAST_PUBLISHED']
         bc.get_articles_rss(dict_time_format['bc_tf'])
-        dict_pub_time['BC_LAST_PUBLISHED'] = bc.LAST_PUBLISHED
+        dict_pub_time['BC_LAST_PUBLISHED'] = bc.LAST_PUBLISHED.stftime(
+            dict_time_format['bc_tf'])
 
         thn = hackernews(
             ALL_VALID,
@@ -355,7 +356,8 @@ async def itscheckintime():
         )
         thn.LAST_PUBLISHED = dict_pub_time['HN_LAST_PUBLISHED']
         thn.get_articles_rss(dict_time_format['hn_tf'])
-        dict_pub_time['HN_LAST_PUBLISHED'] = thn.LAST_PUBLISHED
+        dict_pub_time['HN_LAST_PUBLISHED'] = thn.LAST_PUBLISHED.stftime(
+            dict_time_format['hn_tf'])
 
         alien = otxalien(
             ALL_VALID,
@@ -368,8 +370,10 @@ async def itscheckintime():
         alien.ALIEN_MODIFIED = dict_pub_time['ALIEN_MODIFIED']
         alien.get_new_pulse()
         alien.get_modified_pulse()
-        dict_pub_time['ALIEN_CREATED'] = alien.ALIEN_CREATED
-        dict_pub_time['ALIEN_MODIFIED'] = alien.ALIEN_MODIFIED
+        dict_pub_time['ALIEN_CREATED'] = alien.ALIEN_CREATED.stftime(
+            dict_time_format['alien_tf'])
+        dict_pub_time['ALIEN_MODIFIED'] = alien.ALIEN_MODIFIED.stftime(
+            dict_time_format['alien_tf'])
 
         # vulner blog
         vulner = vulners(
@@ -381,7 +385,8 @@ async def itscheckintime():
         )
         vulner.LAST_PUBLISHED = dict_pub_time['VULNER_LAST_PUBLISHED']
         vulner.get_articles_rss(dict_time_format['vulner_tf'])
-        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED
+        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED.stftime(
+            dict_time_format['vulner_tf'])
 
         sw = securityweek(ALL_VALID,
                           DESCRIPTION_KEYWORDS,
@@ -391,7 +396,8 @@ async def itscheckintime():
                           )
         sw.LAST_PUBLISHED = dict_pub_time['SW_LAST_PUBLISHED']
         sw.get_articles_rss(dict_time_format['sw_tf'])
-        dict_pub_time['SW_LAST_PUBLISHED'] = sw.LAST_PUBLISHED
+        dict_pub_time['SW_LAST_PUBLISHED'] = sw.LAST_PUBLISHED.stftime(
+            dict_time_format['sw_tf'])
 
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
