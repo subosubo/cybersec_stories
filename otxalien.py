@@ -28,7 +28,7 @@ class otxalien:
             pathlib.Path(__file__).parent.absolute(
             ), "output/alien_record.json"
         )
-        # self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+        self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
         self.ALIEN_MODIFIED = datetime.datetime.now(
             utc) - datetime.timedelta(days=1)
         self.ALIEN_CREATED = datetime.datetime.now(
