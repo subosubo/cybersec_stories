@@ -161,7 +161,7 @@ def load_lasttimes() -> dict:
             published_time['ALIEN_MODIFIED'] = datetime.strptime(
                 published_time['ALIEN_MODIFIED'], dict_time_format['alien_tf'])
             published_time['ALIEN_CREATED'] = datetime.strptime(
-                published_time['ALIEN_CREATED'], dict_time_format['alient_tf'])
+                published_time['ALIEN_CREATED'], dict_time_format['alien_tf'])
             published_time['BC_LAST_PUBLISHED'] = datetime.strptime(
                 published_time['BC_LAST_PUBLISHED'], dict_time_format['bc_tf'])
             published_time['HN_LAST_PUBLISHED'] = datetime.strptime(
@@ -441,7 +441,7 @@ if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
         # , hour="8-18", minute="*/3"
-        itscheckintime, "cron", day_of_week="mon-sun", hour="8-18", minute="*/30"
+        itscheckintime, "cron", day_of_week="mon-sun", hour="0-23", minute="*/3"
     )
     scheduler.start()
 
