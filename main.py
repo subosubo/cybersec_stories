@@ -322,13 +322,15 @@ async def sendtowebhook(webhookurl: str, content: Embed):
 
 
 #################### MAIN BODY #########################
-async def itscheckintime():
+async def check_news_sources():
 
     try:
-
+        # Load the list of stories to be published, the list of modified pulses, the list of pulses, and the list of blogs
         stories_to_pub, mod_pulse_to_pub, pulse_to_pub, blog_to_pub = load_stories_to_publish()
+        # Load the timestamps of the last time each source was checked
         dict_pub_time = load_lasttimes()
 
+        # Load the keywords used to filter the articles
         (
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
@@ -337,16 +339,17 @@ async def itscheckintime():
             PRODUCT_KEYWORDS_I,
         ) = load_keywords()
 
-        # bleeping
+        # Check for new articles from BleepingComputer
         bc = bleepingcom(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
+            dict_pub_time['BC_LAST_PUBLISHED'],
+            dict_time_format['bc_tf']
         )
-        bc.last_published = dict_pub_time['BC_LAST_PUBLISHED']
-        bc.get_articles_rss(dict_time_format['bc_tf'])
+        bc.get_articles_rss()
         dict_pub_time['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
             dict_time_format['bc_tf'])
 
@@ -356,9 +359,10 @@ async def itscheckintime():
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
+            dict_pub_time['HN_LAST_PUBLISHED'],
+            dict_time_format['hn_tf']
         )
-        thn.last_published = dict_pub_time['HN_LAST_PUBLISHED']
-        thn.get_articles_rss(dict_time_format['hn_tf'])
+        thn.get_articles_rss()
         dict_pub_time['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
             dict_time_format['hn_tf'])
 
@@ -368,9 +372,10 @@ async def itscheckintime():
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
+            dict_pub_time['ALIEN_CREATED'],
+            dict_pub_time['ALIEN_MODIFIED'],
+            dict_time_format['alien_tf']
         )
-        alien.ALIEN_CREATED = dict_pub_time['ALIEN_CREATED']
-        alien.ALIEN_MODIFIED = dict_pub_time['ALIEN_MODIFIED']
         alien.get_new_pulse()
         alien.get_modified_pulse()
         dict_pub_time['ALIEN_CREATED'] = alien.ALIEN_CREATED.strftime(
@@ -385,9 +390,10 @@ async def itscheckintime():
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
+            dict_pub_time['VULNER_LAST_PUBLISHED'],
+            dict_time_format['vulner_tf']
         )
-        vulner.last_published = dict_pub_time['VULNER_LAST_PUBLISHED']
-        vulner.get_articles_rss(dict_time_format['vulner_tf'])
+        vulner.get_articles_rss()
         dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.last_published.replace(tzinfo=gmt).strftime(
             dict_time_format['vulner_tf'])
 
@@ -396,9 +402,10 @@ async def itscheckintime():
                           DESCRIPTION_KEYWORDS_I,
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
+                          dict_pub_time['SW_LAST_PUBLISHED'],
+                          dict_time_format['sw_tf']
                           )
-        sw.last_published = dict_pub_time['SW_LAST_PUBLISHED']
-        sw.get_articles_rss(dict_time_format['sw_tf'])
+        sw.get_articles_rss()
         dict_pub_time['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
             dict_time_format['sw_tf'])
 
@@ -449,7 +456,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        itscheckintime, "cron", day_of_week="mon-sun", hour="8-18", minute="*/3"
+        check_news_sources, "cron", day_of_week="mon-fri", hour="8-18/1"
     )
     scheduler.start()
 

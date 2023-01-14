@@ -16,7 +16,7 @@ class time_type(Enum):
 
 
 class otxalien:
-    def __init__(self, valid, keywords, keywords_i, product, product_i):
+    def __init__(self, valid, keywords, keywords_i, product, product_i, last_created, last_modified, time_format):
         self.valid = valid
         self.keywords = keywords
         self.keywords_i = keywords_i
@@ -28,11 +28,9 @@ class otxalien:
             pathlib.Path(__file__).parent.absolute(
             ), "output/alien_record.json"
         )
-        self.ALIEN_TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
-        self.ALIEN_MODIFIED = datetime.datetime.now(
-            utc) - datetime.timedelta(days=1)
-        self.ALIEN_CREATED = datetime.datetime.now(
-            utc) - datetime.timedelta(days=1)
+        self.ALIEN_TIME_FORMAT = time_format
+        self.ALIEN_MODIFIED = last_modified
+        self.ALIEN_CREATED = last_created
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
         self.new_pulses = []
