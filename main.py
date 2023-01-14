@@ -345,9 +345,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        bc.LAST_PUBLISHED = dict_pub_time['BC_LAST_PUBLISHED']
+        bc.last_published = dict_pub_time['BC_LAST_PUBLISHED']
         bc.get_articles_rss(dict_time_format['bc_tf'])
-        dict_pub_time['BC_LAST_PUBLISHED'] = bc.LAST_PUBLISHED.strftime(
+        dict_pub_time['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
             dict_time_format['bc_tf'])
 
         thn = hackernews(
@@ -357,9 +357,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        thn.LAST_PUBLISHED = dict_pub_time['HN_LAST_PUBLISHED']
+        thn.last_published = dict_pub_time['HN_LAST_PUBLISHED']
         thn.get_articles_rss(dict_time_format['hn_tf'])
-        dict_pub_time['HN_LAST_PUBLISHED'] = thn.LAST_PUBLISHED.strftime(
+        dict_pub_time['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
             dict_time_format['hn_tf'])
 
         alien = otxalien(
@@ -386,9 +386,9 @@ async def itscheckintime():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
         )
-        vulner.LAST_PUBLISHED = dict_pub_time['VULNER_LAST_PUBLISHED']
+        vulner.last_published = dict_pub_time['VULNER_LAST_PUBLISHED']
         vulner.get_articles_rss(dict_time_format['vulner_tf'])
-        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.LAST_PUBLISHED.replace(tzinfo=gmt).strftime(
+        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.last_published.replace(tzinfo=gmt).strftime(
             dict_time_format['vulner_tf'])
 
         sw = securityweek(ALL_VALID,
@@ -397,15 +397,15 @@ async def itscheckintime():
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
                           )
-        sw.LAST_PUBLISHED = dict_pub_time['SW_LAST_PUBLISHED']
+        sw.last_published = dict_pub_time['SW_LAST_PUBLISHED']
         sw.get_articles_rss(dict_time_format['sw_tf'])
-        dict_pub_time['SW_LAST_PUBLISHED'] = sw.LAST_PUBLISHED.strftime(
+        dict_pub_time['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
             dict_time_format['sw_tf'])
 
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
         blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
-        blog_to_pub.extend(list(reversed(sw.new_SW_blog)))
+        blog_to_pub.extend(list(reversed(sw.new_sw_blog)))
         pulse_to_pub.extend(list(reversed(alien.new_pulses)))
         mod_pulse_to_pub.extend(list(reversed(alien.mod_pulses)))
 
@@ -449,8 +449,7 @@ async def itscheckintime():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        # , hour="8-18", minute="*/3"
-        itscheckintime, "cron", day_of_week="mon-sun", hour="8-18", minute="*/30"
+        itscheckintime, "cron", day_of_week="mon-sun", hour="8-18", minute="*/3"
     )
     scheduler.start()
 

@@ -40,44 +40,6 @@ class otxalien:
         self.mod_pulses = []
         self.mod_pulse_title = []
 
-    ################## LOAD CONFIGURATIONS ####################
-
-    # def load_lasttimes(self):
-    #     # Load lasttimes from json file
-
-    #     try:
-
-    #         with open(self.PUBLISH_ALIEN_JSON_PATH, "r") as json_file:
-    #             alien_time = json.load(json_file)
-    #             self.ALIEN_MODIFIED = datetime.datetime.strptime(
-    #                 alien_time["MODIFIED"], self.ALIEN_TIME_FORMAT
-    #             )
-    #             self.ALIEN_CREATED = datetime.datetime.strptime(
-    #                 alien_time["CREATED"], self.ALIEN_TIME_FORMAT
-    #             )
-
-    #     # If error, just keep the fault date (today - 1 day)
-    #     except Exception as e:
-    #         self.logger.error(f"OA-ERROR-1: {e}")
-
-    # def update_lasttimes(self):
-    #     # Save lasttimes in json file
-    #     try:
-
-    #         with open(self.PUBLISH_ALIEN_JSON_PATH, "w") as json_file:
-    #             json.dump(
-    #                 {
-    #                     "MODIFIED": self.ALIEN_MODIFIED.strftime(
-    #                         self.ALIEN_TIME_FORMAT
-    #                     ),
-    #                     "CREATED": self.ALIEN_CREATED.strftime(self.ALIEN_TIME_FORMAT),
-    #                 },
-    #                 json_file,
-    #             )
-
-    #     except Exception as e:
-    #         self.logger.error(f"0A-ERROR-2: {e}")
-
     ################## GET PULSES FROM OTX ALIEN  ####################
 
     def get_sub_pulse(self):

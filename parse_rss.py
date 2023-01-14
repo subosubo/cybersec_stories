@@ -10,8 +10,8 @@ import feedparser
 
 class rss_parse:
 
-    def __init__(self, url, title, valid, keywords, keywords_i, product, product_i, LAST_PUBLISHED, TIME_FORMAT):
-        self.TIME_FORMAT = TIME_FORMAT
+    def __init__(self, url, title, valid, keywords, keywords_i, product, product_i, last_published, time_format):
+        self.time_format = time_format
         self.url = url
         self.title_label = title
         self.valid = valid
@@ -21,7 +21,7 @@ class rss_parse:
         self.product_i = product_i
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
-        self.LAST_PUBLISHED = LAST_PUBLISHED
+        self.last_published = last_published
 
         self.filtered_list = []
 
@@ -37,7 +37,7 @@ class rss_parse:
 
         for list_obj in list:
             list_obj_time = datetime.datetime.strptime(
-                list_obj["published"], self.TIME_FORMAT
+                list_obj["published"], self.time_format
             )
             if list_obj_time > last_published:
                 if self.valid or self.is_summ_keyword_present(list_obj["description"]):
@@ -57,8 +57,8 @@ class rss_parse:
 
     def get_new_rss(self):
         new_list = self.request_rss(self.url)
-        self.filtered_list, self.LAST_PUBLISHED = self.filter_list(
-            new_list["entries"], self.LAST_PUBLISHED
+        self.filtered_list, self.last_published = self.filter_list(
+            new_list["entries"], self.last_published
         )
         # removes html tags from description
         self.remove_html()
