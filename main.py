@@ -328,7 +328,7 @@ async def check_news_sources():
         # Load the list of stories to be published, the list of modified pulses, the list of pulses, and the list of blogs
         stories_to_pub, mod_pulse_to_pub, pulse_to_pub, blog_to_pub = load_stories_to_publish()
         # Load the timestamps of the last time each source was checked
-        dict_pub_time = load_lasttimes()
+        last_publish_times = load_lasttimes()
 
         # Load the keywords used to filter the articles
         (
@@ -346,69 +346,73 @@ async def check_news_sources():
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
-            dict_pub_time['BC_LAST_PUBLISHED'],
+            last_publish_times['BC_LAST_PUBLISHED'],
             dict_time_format['bc_tf']
         )
         bc.get_articles_rss()
-        dict_pub_time['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
+        last_publish_times['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
             dict_time_format['bc_tf'])
 
+        # Check for new articles from HackerNews
         thn = hackernews(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
-            dict_pub_time['HN_LAST_PUBLISHED'],
+            last_publish_times['HN_LAST_PUBLISHED'],
             dict_time_format['hn_tf']
         )
         thn.get_articles_rss()
-        dict_pub_time['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
+        last_publish_times['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
             dict_time_format['hn_tf'])
 
+        # Check for new pulses from AlienVault
         alien = otxalien(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
-            dict_pub_time['ALIEN_CREATED'],
-            dict_pub_time['ALIEN_MODIFIED'],
+            last_publish_times['ALIEN_CREATED'],
+            last_publish_times['ALIEN_MODIFIED'],
             dict_time_format['alien_tf']
         )
         alien.get_new_pulse()
         alien.get_modified_pulse()
-        dict_pub_time['ALIEN_CREATED'] = alien.ALIEN_CREATED.strftime(
+        last_publish_times['ALIEN_CREATED'] = alien.ALIEN_CREATED.strftime(
             dict_time_format['alien_tf'])
-        dict_pub_time['ALIEN_MODIFIED'] = alien.ALIEN_MODIFIED.strftime(
+        last_publish_times['ALIEN_MODIFIED'] = alien.ALIEN_MODIFIED.strftime(
             dict_time_format['alien_tf'])
 
-        # vulner blog
+        # Check for new articles from the Vulnerabilities Blog
         vulner = vulners(
             ALL_VALID,
             DESCRIPTION_KEYWORDS,
             DESCRIPTION_KEYWORDS_I,
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
-            dict_pub_time['VULNER_LAST_PUBLISHED'],
+            last_publish_times['VULNER_LAST_PUBLISHED'],
             dict_time_format['vulner_tf']
         )
         vulner.get_articles_rss()
-        dict_pub_time['VULNER_LAST_PUBLISHED'] = vulner.last_published.replace(tzinfo=gmt).strftime(
+        last_publish_times['VULNER_LAST_PUBLISHED'] = vulner.last_published.replace(tzinfo=gmt).strftime(
             dict_time_format['vulner_tf'])
 
+        # Check for new articles from SecurityWeek
         sw = securityweek(ALL_VALID,
                           DESCRIPTION_KEYWORDS,
                           DESCRIPTION_KEYWORDS_I,
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
-                          dict_pub_time['SW_LAST_PUBLISHED'],
+                          last_publish_times['SW_LAST_PUBLISHED'],
                           dict_time_format['sw_tf']
                           )
         sw.get_articles_rss()
-        dict_pub_time['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
+        last_publish_times['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
             dict_time_format['sw_tf'])
 
+        # Add the new stories to the list of stories to be published
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
         blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
@@ -437,7 +441,7 @@ async def check_news_sources():
             blog_msg = generate_new_blog_message(blog)
             await send_discord_message(blog_msg)
 
-        update_lasttimes(dict_pub_time)
+        update_lasttimes(last_publish_times)
 
         store_stories_for_later(
             stories_to_pub[max_publish:],
@@ -456,7 +460,7 @@ async def check_news_sources():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        check_news_sources, "cron", day_of_week="mon-fri", hour="8-18/1"
+        check_news_sources, "cron", day_of_week="mon-sat", hour="8-18", minute="*/3"
     )
     scheduler.start()
 
