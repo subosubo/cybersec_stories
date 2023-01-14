@@ -99,14 +99,14 @@ def load_stories_to_publish():
         logger.error(f"ERROR_LOAD:{e}")
 
 
-def remove_duplicate(orig_list):
+def remove_duplicate(orig_list: list) -> list:
     new_list = [i for n, i in enumerate(
         orig_list) if i not in orig_list[n + 1:]]
 
     return new_list
 
 
-def store_stories_for_later(liststories, listmodpulse, listpulse, listvulnersblog):
+def store_stories_for_later(liststories: list, listmodpulse: list, listpulse: list, listvulnersblog: list):
     try:
         with open(STORY_JSON_PATH, "w") as json_file:
             json.dump(liststories, json_file, indent=4, separators=(",", ": "))
