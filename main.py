@@ -460,7 +460,7 @@ async def check_news_sources():
 if __name__ == "__main__":
     scheduler = AsyncIOScheduler(timezone="Asia/Singapore")
     scheduler.add_job(
-        check_news_sources, "cron", day_of_week="mon-fri", hour="8-18/1"
+        check_news_sources, "cron", day_of_week="mon-fri", hour="8-18", minute="*/30"
     )
     scheduler.start()
 
