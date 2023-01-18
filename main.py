@@ -27,10 +27,9 @@ load_dotenv(dotenv_path)
 
 max_publish = 2
 dict_time_format = {"alien_tf": "%Y-%m-%dT%H:%M:%S.%f",
-                    "bc_tf": "%a, %d %b %Y %H:%M:%S %z",
-                    "hn_tf": "%a, %d %b %Y %H:%M:%S %z",
+                    "common_tf": "%a, %d %b %Y %H:%M:%S %z",
                     "vulner_tf": "%a, %d %b %Y %H:%M:%S %Z",
-                    "sw_tf": "%a, %d %b %Y %H:%M:%S %z"}
+                    }
 
 gmt = pytz.timezone('GMT')
 
@@ -166,13 +165,13 @@ def load_lasttimes() -> dict:
             published_time['ALIEN_CREATED'] = datetime.strptime(
                 published_time['ALIEN_CREATED'], dict_time_format['alien_tf'])
             published_time['BC_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['BC_LAST_PUBLISHED'], dict_time_format['bc_tf'])
+                published_time['BC_LAST_PUBLISHED'], dict_time_format['common_tf'])
             published_time['HN_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['HN_LAST_PUBLISHED'], dict_time_format['hn_tf'])
+                published_time['HN_LAST_PUBLISHED'], dict_time_format['common_tf'])
             published_time['VULNER_LAST_PUBLISHED'] = datetime.strptime(
                 published_time['VULNER_LAST_PUBLISHED'], dict_time_format['vulner_tf'])
             published_time['SW_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['SW_LAST_PUBLISHED'], dict_time_format['sw_tf'])
+                published_time['SW_LAST_PUBLISHED'], dict_time_format['common_tf'])
 
         json_file.close()
         return published_time
@@ -347,11 +346,11 @@ async def check_news_sources():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
             last_publish_times['BC_LAST_PUBLISHED'],
-            dict_time_format['bc_tf']
+            dict_time_format['common_tf']
         )
         bc.get_articles_rss()
         last_publish_times['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
-            dict_time_format['bc_tf'])
+            dict_time_format['common_tf'])
 
         # Check for new articles from HackerNews
         thn = hackernews(
@@ -361,11 +360,11 @@ async def check_news_sources():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
             last_publish_times['HN_LAST_PUBLISHED'],
-            dict_time_format['hn_tf']
+            dict_time_format['common_tf']
         )
         thn.get_articles_rss()
         last_publish_times['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
-            dict_time_format['hn_tf'])
+            dict_time_format['common_tf'])
 
         # Check for new pulses from AlienVault
         alien = otxalien(
@@ -406,11 +405,11 @@ async def check_news_sources():
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
                           last_publish_times['SW_LAST_PUBLISHED'],
-                          dict_time_format['sw_tf']
+                          dict_time_format['common_tf']
                           )
         sw.get_articles_rss()
         last_publish_times['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
-            dict_time_format['sw_tf'])
+            dict_time_format['common_tf'])
 
         # Add the new stories to the list of stories to be published
         stories_to_pub.extend(list(reversed(bc.new_stories)))
