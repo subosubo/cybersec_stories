@@ -55,7 +55,7 @@ consolelog.setFormatter(formatter)
 log_dir = Path(__file__).parent.absolute()
 log_dir.mkdir(parents=True, exist_ok=True)
 filelog = logging.FileHandler(
-    log_dir / 'cybersec_stories_logfile.log', "a", "utf-8")
+    log_dir / 'cybersec_stories_logfile.log', "a+", "utf-8")
 filelog.setLevel(logging.DEBUG)
 
 # create formatter
