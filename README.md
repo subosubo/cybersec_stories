@@ -10,3 +10,7 @@ Few things to setup before using:
 
 - pet project for learning python, so feel free to comment on the code and how I can improve
 - ran it on replit and later to rpi, because i didn't know how to handle discord's ratelimit responses. 
+
+To DO:
+1. https://securitybrief.asia/feed - remove job moves
+2. https://www.cybersecasia.net/feed

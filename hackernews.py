@@ -29,7 +29,7 @@ class hackernews:
     ################## GET ARTICLES ####################
 
     def get_articles_rss(self):
-        rss = rss_parse(url=self.HACKER_NEWS_UR, title="TheHackingNews", valid=self.valid, keywords=self.keywords,
+        rss = rss_parse(url=self.HACKER_NEWS_UR, title="TheHackersNews", valid=self.valid, keywords=self.keywords,
                         keywords_i=self.keywords_i, product=self.product, product_i=self.product_i, last_published=self.last_published, time_format=self.time_format)
         rss.get_new_rss()
         self.new_news = rss.filtered_list
