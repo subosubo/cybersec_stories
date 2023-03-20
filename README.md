@@ -12,5 +12,4 @@ Few things to setup before using:
 - ran it on replit and later to rpi, because i didn't know how to handle discord's ratelimit responses. 
 
 To DO:
-1. https://securitybrief.asia/feed - remove job moves
-2. https://www.cybersecasia.net/feed
+1. https://www.darkreading.com/rss.xml
