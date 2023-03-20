@@ -1,5 +1,4 @@
 import logging
-import pathlib
 import pytz
 from os.path import join
 
@@ -19,10 +18,6 @@ class bleepingcom:
         self.last_published = last_published
         self.time_format = time_format
         self.BLEEPING_COM_UR = "https://www.bleepingcomputer.com/feed/"
-        self.PUBLISH_BC_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(
-            ), "output/bleeping_com_record.json"
-        )
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
         self.new_stories = []

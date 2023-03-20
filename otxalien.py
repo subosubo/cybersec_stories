@@ -1,7 +1,6 @@
 import datetime
 import logging
 import os
-import pathlib
 import pytz
 import requests
 from enum import Enum
@@ -24,10 +23,6 @@ class otxalien:
         self.product_i = product_i
 
         self.ALIENVAULT_UR = "https://otx.alienvault.com/api/v1/pulses/subscribed?"
-        self.PUBLISH_ALIEN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(
-            ), "output/alien_record.json"
-        )
         self.ALIEN_TIME_FORMAT = time_format
         self.ALIEN_MODIFIED = last_modified
         self.ALIEN_CREATED = last_created

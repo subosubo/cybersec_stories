@@ -19,6 +19,7 @@ from discord import Embed, HTTPException, Webhook
 from hackernews import hackernews
 from otxalien import otxalien
 from securityweekrss import securityweek
+from darkreadingrss import darkreading
 import pytz
 
 
@@ -27,8 +28,8 @@ load_dotenv(dotenv_path)
 
 max_publish = 2
 dict_time_format = {"alien_tf": "%Y-%m-%dT%H:%M:%S.%f",
-                    "common_tf": "%a, %d %b %Y %H:%M:%S %z",
-                    "vulner_tf": "%a, %d %b %Y %H:%M:%S %Z",
+                    "utc_offset_tf": "%a, %d %b %Y %H:%M:%S %z",
+                    "timezone_name_tf": "%a, %d %b %Y %H:%M:%S %Z",
                     }
 
 gmt = pytz.timezone('GMT')
@@ -165,13 +166,15 @@ def load_lasttimes() -> dict:
             published_time['ALIEN_CREATED'] = datetime.strptime(
                 published_time['ALIEN_CREATED'], dict_time_format['alien_tf'])
             published_time['BC_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['BC_LAST_PUBLISHED'], dict_time_format['common_tf'])
+                published_time['BC_LAST_PUBLISHED'], dict_time_format['utc_offset_tf'])
             published_time['HN_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['HN_LAST_PUBLISHED'], dict_time_format['common_tf'])
+                published_time['HN_LAST_PUBLISHED'], dict_time_format['utc_offset_tf'])
             published_time['VULNER_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['VULNER_LAST_PUBLISHED'], dict_time_format['vulner_tf'])
+                published_time['VULNER_LAST_PUBLISHED'], dict_time_format['timezone_name_tf'])
             published_time['SW_LAST_PUBLISHED'] = datetime.strptime(
-                published_time['SW_LAST_PUBLISHED'], dict_time_format['common_tf'])
+                published_time['SW_LAST_PUBLISHED'], dict_time_format['utc_offset_tf'])
+            published_time['DR_LAST_PUBLISHED'] = datetime.strptime(
+                published_time['DR_LAST_PUBLISHED'], dict_time_format['utc_offset_tf'])
 
         json_file.close()
         return published_time
@@ -346,11 +349,11 @@ async def check_news_sources():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
             last_publish_times['BC_LAST_PUBLISHED'],
-            dict_time_format['common_tf']
+            dict_time_format['utc_offset_tf']
         )
         bc.get_articles_rss()
         last_publish_times['BC_LAST_PUBLISHED'] = bc.last_published.strftime(
-            dict_time_format['common_tf'])
+            dict_time_format['utc_offset_tf'])
 
         # Check for new articles from HackerNews
         thn = hackernews(
@@ -360,11 +363,25 @@ async def check_news_sources():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
             last_publish_times['HN_LAST_PUBLISHED'],
-            dict_time_format['common_tf']
+            dict_time_format['utc_offset_tf']
         )
         thn.get_articles_rss()
         last_publish_times['HN_LAST_PUBLISHED'] = thn.last_published.strftime(
-            dict_time_format['common_tf'])
+            dict_time_format['utc_offset_tf'])
+
+        # Check for new articles from DarkReading
+        dr = darkreading(
+            ALL_VALID,
+            DESCRIPTION_KEYWORDS,
+            DESCRIPTION_KEYWORDS_I,
+            PRODUCT_KEYWORDS,
+            PRODUCT_KEYWORDS_I,
+            last_publish_times['DR_LAST_PUBLISHED'],
+            dict_time_format['utc_offset_tf']
+        )
+        dr.get_articles_rss()
+        last_publish_times['DR_LAST_PUBLISHED'] = dr.last_published.strftime(
+            dict_time_format['utc_offset_tf'])
 
         # Check for new pulses from AlienVault
         alien = otxalien(
@@ -392,11 +409,11 @@ async def check_news_sources():
             PRODUCT_KEYWORDS,
             PRODUCT_KEYWORDS_I,
             last_publish_times['VULNER_LAST_PUBLISHED'],
-            dict_time_format['vulner_tf']
+            dict_time_format['timezone_name_tf']
         )
         vulner.get_articles_rss()
         last_publish_times['VULNER_LAST_PUBLISHED'] = vulner.last_published.replace(tzinfo=gmt).strftime(
-            dict_time_format['vulner_tf'])
+            dict_time_format['timezone_name_tf'])
 
         # Check for new articles from SecurityWeek
         sw = securityweek(ALL_VALID,
@@ -405,15 +422,16 @@ async def check_news_sources():
                           PRODUCT_KEYWORDS,
                           PRODUCT_KEYWORDS_I,
                           last_publish_times['SW_LAST_PUBLISHED'],
-                          dict_time_format['common_tf']
+                          dict_time_format['utc_offset_tf']
                           )
         sw.get_articles_rss()
         last_publish_times['SW_LAST_PUBLISHED'] = sw.last_published.strftime(
-            dict_time_format['common_tf'])
+            dict_time_format['utc_offset_tf'])
 
         # Add the new stories to the list of stories to be published
         stories_to_pub.extend(list(reversed(bc.new_stories)))
         stories_to_pub.extend(list(reversed(thn.new_news)))
+        stories_to_pub.extend(list(reversed(dr.new_readings)))
         blog_to_pub.extend(list(reversed(vulner.new_vulners_blog)))
         blog_to_pub.extend(list(reversed(sw.new_sw_blog)))
         pulse_to_pub.extend(list(reversed(alien.new_pulses)))

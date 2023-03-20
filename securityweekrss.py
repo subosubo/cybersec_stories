@@ -1,5 +1,4 @@
 import logging
-import pathlib
 from os.path import join
 from parse_rss import rss_parse
 
@@ -14,10 +13,6 @@ class securityweek:
         self.last_published = last_published
         self.time_format = time_format
         self.SW_BLOG_URL = "https://feeds.feedburner.com/securityweek"
-        self.PUBLISH_SW_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(
-            ), "output/record.json"
-        )
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
         self.new_sw_blog = []

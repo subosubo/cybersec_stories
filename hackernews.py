@@ -1,5 +1,4 @@
 import logging
-import pathlib
 import pytz
 from os.path import join
 from parse_rss import rss_parse
@@ -17,10 +16,6 @@ class hackernews:
         self.last_published = last_published
         self.time_format = time_format
         self.HACKER_NEWS_UR = "https://feeds.feedburner.com/TheHackersNews"
-        self.PUBLISH_HN_JSON_PATH = join(
-            pathlib.Path(__file__).parent.absolute(
-            ), "output/hacker_news_record.json"
-        )
         self.logger = logging.getLogger("__main__")
         self.logger.setLevel(logging.DEBUG)
         self.new_news = []
